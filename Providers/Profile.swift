@@ -255,8 +255,6 @@ open class BrowserProfile: Profile {
 
         notificationCenter.addObserver(self, selector: #selector(onLocationChange(notification:)), name: NotificationOnLocationChange, object: nil)
         notificationCenter.addObserver(self, selector: #selector(onPageMetadataFetched(notification:)), name: NotificationOnPageMetadataFetched, object: nil)
-        notificationCenter.addObserver(self, selector: #selector(onProfileDidFinishSyncing(notification:)), name: NotificationProfileDidFinishSyncing, object: nil)
-        notificationCenter.addObserver(self, selector: #selector(onPrivateDataClearedHistory(notification:)), name: NotificationPrivateDataClearedHistory, object: nil)
 
         if isNewProfile {
             log.info("New profile. Removing old account metadata.")
@@ -332,28 +330,14 @@ open class BrowserProfile: Profile {
             log.debug("Private mode - Ignoring page metadata.")
             return
         }
-
         guard let metadataDict = notification.userInfo?["metadata"] as? [String: Any],
-              let pageURL = (metadataDict["url"] as? String)?.asURL,
+              let pageURL = (notification.userInfo?["tabURL"] as? String)?.asURL,
               let pageMetadata = PageMetadata.fromDictionary(metadataDict) else {
             log.debug("Metadata notification doesn't contain any metadata!")
             return
         }
-
         let defaultMetadataTTL: UInt64 = 3 * 24 * 60 * 60 * 1000 // 3 days for the metadata to live
         self.metadata.storeMetadata(pageMetadata, forPageURL: pageURL, expireAt: defaultMetadataTTL + Date.now())
-    }
-
-    // These selectors run on which ever thread sent the notifications (not the main thread)
-    @objc
-    func onProfileDidFinishSyncing(notification: NSNotification) {
-        history.setTopSitesNeedsInvalidation()
-    }
-
-    @objc
-    func onPrivateDataClearedHistory(notification: NSNotification) {
-        // Immediately invalidate the top sites cache
-        history.refreshTopSitesCache()
     }
 
     deinit {
@@ -361,8 +345,6 @@ open class BrowserProfile: Profile {
         self.syncManager.endTimedSyncs()
         NotificationCenter.default.removeObserver(self, name: NotificationOnLocationChange, object: nil)
         NotificationCenter.default.removeObserver(self, name: NotificationOnPageMetadataFetched, object: nil)
-        NotificationCenter.default.removeObserver(self, name: NotificationProfileDidFinishSyncing, object: nil)
-        NotificationCenter.default.removeObserver(self, name: NotificationPrivateDataClearedHistory, object: nil)
     }
 
     func localName() -> String {
@@ -435,7 +417,7 @@ open class BrowserProfile: Profile {
         return ReadingListService(profileStoragePath: self.files.rootPath as String)
     }()
 
-    lazy var remoteClientsAndTabs: RemoteClientsAndTabs & ResettableSyncStorage & AccountRemovalDelegate = {
+    lazy var remoteClientsAndTabs: RemoteClientsAndTabs & ResettableSyncStorage & AccountRemovalDelegate & RemoteDevices = {
         return SQLiteRemoteClientsAndTabs(db: self.db)
     }()
 
@@ -657,8 +639,10 @@ open class BrowserProfile: Profile {
                     log.debug("Profile isn't sending usage data. Not sending sync status event.")
                 }
             }
-
-            notifySyncing(notification: NotificationProfileDidFinishSyncing)
+            // Dont notify if we are performing a sync in the background. This prevents more db access from happening
+            if !self.backgrounded {
+                notifySyncing(notification: NotificationProfileDidFinishSyncing)
+            }
             syncReducer = nil
         }
 
@@ -966,7 +950,18 @@ open class BrowserProfile: Profile {
         fileprivate func syncClientsWithDelegate(_ delegate: SyncDelegate, prefs: Prefs, ready: Ready, why: SyncReason) -> SyncResult {
             log.debug("Syncing clients to storage.")
             let clientSynchronizer = ready.synchronizer(ClientsSynchronizer.self, delegate: delegate, prefs: prefs, why: why)
-            return clientSynchronizer.synchronizeLocalClients(self.profile.remoteClientsAndTabs, withServer: ready.client, info: ready.info)
+            return clientSynchronizer.synchronizeLocalClients(self.profile.remoteClientsAndTabs, withServer: ready.client, info: ready.info) >>== { result in
+                guard case .completed = result else {
+                    return deferMaybe(result)
+                }
+                guard let account = self.profile.account else {
+                    return deferMaybe(result)
+                }
+                log.debug("Updating FxA devices list.")
+                return account.updateFxADevices(remoteDevices: self.profile.remoteClientsAndTabs).bind { _ in
+                    return deferMaybe(result)
+                }
+            }
         }
 
         fileprivate func syncTabsWithDelegate(_ delegate: SyncDelegate, prefs: Prefs, ready: Ready, why: SyncReason) -> SyncResult {

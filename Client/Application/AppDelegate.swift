@@ -214,9 +214,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UIViewControllerRestorati
         let fxaLoginHelper = FxALoginHelper.sharedInstance
         fxaLoginHelper.application(application, didLoadProfile: profile)
 
-        // Run an invalidate when we come back into the app.
-        profile.panelDataObservers.activityStream.invalidate(highlights: true)
-
         setUpDeepLinks(application: application)
 
         log.debug("Done with setting up the application.")
@@ -447,14 +444,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UIViewControllerRestorati
         }
 
         LeanplumIntegration.sharedInstance.track(eventName: .openedNewTab, withParameters: ["Source": "External App or Extension" as AnyObject])
-    }
-
-    func application(_ application: UIApplication, shouldAllowExtensionPointIdentifier extensionPointIdentifier: UIApplicationExtensionPointIdentifier) -> Bool {
-        if let thirdPartyKeyboardSettingBool = getProfile(application).prefs.boolForKey(AllowThirdPartyKeyboardsKey), extensionPointIdentifier == UIApplicationExtensionPointIdentifier.keyboard {
-            return thirdPartyKeyboardSettingBool
-        }
-
-        return false
     }
 
     // We sync in the foreground only, to avoid the possibility of runaway resource usage.

@@ -54,6 +54,7 @@
 	<false/>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
+		<string>pocket</string>
 		<string>firefox-focus</string>
 		<string>firefox-klar</string>
 		<string>ymail</string>
@@ -65,6 +66,8 @@
 		<string>readdle-spark</string>
 		<string>itms-books</string>
 		<string>org-appextension-feature-password-management</string>
+		<string>googlegmail</string>
+		<string>inbox-gmail</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
@@ -118,6 +121,14 @@
 			<string>ShortcutItemTitleNewPrivateTab</string>
 			<key>UIApplicationShortcutItemType</key>
 			<string>$(PRODUCT_BUNDLE_IDENTIFIER).NewPrivateTab</string>
+		</dict>
+		<dict>
+			<key>UIApplicationShortcutItemIconFile</key>
+			<string>menu-ScanQRCode</string>
+			<key>UIApplicationShortcutItemTitle</key>
+			<string>ShortcutItemTitleQRCode</string>
+			<key>UIApplicationShortcutItemType</key>
+			<string>$(PRODUCT_BUNDLE_IDENTIFIER).QRCode</string>
 		</dict>
 	</array>
 	<key>UIBackgroundModes</key>

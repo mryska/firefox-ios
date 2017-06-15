@@ -17,6 +17,8 @@ public struct PrefsKeys {
     public static let KeyNightModeButtonIsInMenu = "NightModeButtonIsInMenuPrefKey"
     public static let KeyNightModeStatus = "NightModeStatus"
     public static let KeyMailToOption = "MailToOption"
+    public static let HasFocusInstalled = "HasFocusInstalled"
+    public static let HasPocketInstalled = "HasPocketInstalled"
 }
 
 public struct PrefsDefaults {

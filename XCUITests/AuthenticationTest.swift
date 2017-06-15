@@ -105,7 +105,12 @@ class AuthenticationTest: BaseTestCase {
       
         enablePasscode("1337")
         navigator.goto(LoginsSettings)
-        waitforExistence(app.staticTexts["Enter Passcode"])
+        
+        if #available(iOS 11, *) {
+            waitforExistence(app.navigationBars["Enter Passcode"])
+        } else {
+            waitforExistence(app.staticTexts["Enter Passcode"])
+        }
         typePasscode("1337")
         waitforExistence(app.tables["Login List"])
         
@@ -113,10 +118,19 @@ class AuthenticationTest: BaseTestCase {
         XCUIDevice.shared().press(.home)
         waitforExistence(springboard.scrollViews.otherElements.icons["Fennec"])
         springboard.scrollViews.otherElements.icons["Fennec"].doubleTap()
-        
+        if #available(iOS 11, *) {
+            let contentView = app.navigationBars["Client.FxAContentView"]
+            if contentView.exists {
+                app.navigationBars["Client.FxAContentView"].buttons["Settings"].tap()
+            }
+        }
         navigator.nowAt("SettingsScreen")
         navigator.goto(LoginsSettings)
-        waitforExistence(app.staticTexts["Enter Passcode"])
+        if #available(iOS 11, *) {
+            waitforExistence(app.navigationBars["Enter Passcode"])
+        } else {
+            waitforExistence(app.staticTexts["Enter Passcode"])
+        }
     }
     
     func testPromptPassCodeUponReentryWithDelay() {
@@ -124,7 +138,11 @@ class AuthenticationTest: BaseTestCase {
         
         enablePasscode("1337", interval: "After 5 minutes")
         navigator.goto(LoginsSettings)
-        waitforExistence(app.staticTexts["Enter Passcode"])
+        if #available(iOS 11, *) {
+            waitforExistence(app.navigationBars["Enter Passcode"])
+        } else {
+            waitforExistence(app.staticTexts["Enter Passcode"])
+        }
         typePasscode("1337")
         waitforExistence(app.tables["Login List"])
         
@@ -132,7 +150,13 @@ class AuthenticationTest: BaseTestCase {
         XCUIDevice.shared().press(.home)
         waitforExistence(springboard.scrollViews.otherElements.icons["Fennec"])
         springboard.scrollViews.otherElements.icons["Fennec"].doubleTap()
-        
+        if #available(iOS 11, *) {
+            let contentView = app.navigationBars["Client.FxAContentView"]
+            if contentView.exists {
+                app.navigationBars["Client.FxAContentView"].buttons["Settings"].tap()
+            }
+        }
+
         navigator.nowAt("SettingsScreen")
         navigator.goto(LoginsSettings)
         waitforExistence(app.tables["Login List"])
@@ -174,7 +198,11 @@ class AuthenticationTest: BaseTestCase {
         
         let authenticationmanagerSettingstableviewTable = app.tables["AuthenticationManager.settingsTableView"]
         navigator.goto(PasscodeIntervalSettings)
-        waitforExistence(app.staticTexts["Enter Passcode"])
+        if #available(iOS 11, *) {
+            waitforExistence(app.navigationBars["Enter Passcode"])
+        } else {
+            waitforExistence(app.staticTexts["Enter Passcode"])
+        }
         typePasscode("1337")
         waitforExistence(app.staticTexts["Immediately"])
         XCTAssertTrue(app.staticTexts["After 1 minute"].exists)
@@ -191,7 +219,11 @@ class AuthenticationTest: BaseTestCase {
         // only when timing isn't changed. (could be due to timer reset?)  
         // For clarification, raised Bug 1325439
         navigator.goto(PasscodeIntervalSettings)
-        waitforExistence(app.staticTexts["Enter Passcode"])
+        if #available(iOS 11, *) {
+            waitforExistence(app.navigationBars["Enter Passcode"])
+        } else {
+            waitforExistence(app.staticTexts["Enter Passcode"])
+        }
         typePasscode("1337")
 
         navigator.goto(PasscodeSettings)
@@ -205,14 +237,22 @@ class AuthenticationTest: BaseTestCase {
 
         // Enter login
         navigator.goto(LoginsSettings)
-        waitforExistence(app.staticTexts["Enter Passcode"])
+        if #available(iOS 11, *) {
+            waitforExistence(app.navigationBars["Enter Passcode"])
+        } else {
+            waitforExistence(app.staticTexts["Enter Passcode"])
+        }
         typePasscode("1337")
         waitforExistence(app.tables["Login List"])
         navigator.goto(SettingsScreen)
 
         // Trying again should display passcode screen since we've set the interval to be immediately.
         navigator.goto(LoginsSettings)
-        waitforExistence(app.staticTexts["Enter Passcode"])
+        if #available(iOS 11, *) {
+            waitforExistence(app.navigationBars["Enter Passcode"])
+        } else {
+            waitforExistence(app.staticTexts["Enter Passcode"])
+        }
         typePasscode("1337")
         waitforExistence(app.tables["Login List"])
 
@@ -252,7 +292,11 @@ class AuthenticationTest: BaseTestCase {
         enablePasscode("1337")
         app.tables["AuthenticationManager.settingsTableView"].staticTexts["Require Passcode"].tap()
         
-        waitforExistence(app.staticTexts["Enter Passcode"])
+        if #available(iOS 11, *) {
+            waitforExistence(app.navigationBars["Enter Passcode"])
+        } else {
+            waitforExistence(app.staticTexts["Enter Passcode"])
+        }
         typePasscode("1337")
         waitforExistence(app.staticTexts["After 5 minutes"])
         app.staticTexts["After 5 minutes"].tap()
@@ -261,7 +305,11 @@ class AuthenticationTest: BaseTestCase {
  
         // Enter wrong passcode
         navigator.goto(LoginsSettings)
-        waitforExistence(app.navigationBars["Enter Passcode"])
+        if #available(iOS 11, *) {
+            waitforExistence(app.navigationBars["Enter Passcode"])
+        } else {
+            waitforExistence(app.staticTexts["Enter Passcode"])
+        }
         typePasscode("2337")
         waitforExistence(app.staticTexts["Incorrect passcode. Try again (Attempts remaining: 2)."])
         typePasscode("3337")
@@ -332,12 +380,20 @@ class AuthenticationTest: BaseTestCase {
 
         // Enter login, since the default is 'set immediately,' it will ask for passcode
         navigator.goto(LoginsSettings)
-        waitforExistence(app.navigationBars["Enter Passcode"])
+        if #available(iOS 11, *) {
+            waitforExistence(app.navigationBars["Enter Passcode"])
+        } else {
+            waitforExistence(app.staticTexts["Enter Passcode"])
+        }
         typePasscode("1337")
         waitforExistence(app.tables["Login List"])
         
         navigator.goto(PasscodeIntervalSettings)
-        waitforExistence(app.staticTexts["Enter Passcode"])
+        if #available(iOS 11, *) {
+            waitforExistence(app.navigationBars["Enter Passcode"])
+        } else {
+            waitforExistence(app.staticTexts["Enter Passcode"])
+        }
 
         typePasscode("1337")
         waitforExistence(app.staticTexts["Immediately"])
@@ -348,7 +404,11 @@ class AuthenticationTest: BaseTestCase {
 
         // Enter login, since the interval is reset, it will ask for password again
         navigator.goto(LoginsSettings)
-        waitforExistence(app.navigationBars["Enter Passcode"])
+        if #available(iOS 11, *) {
+            waitforExistence(app.navigationBars["Enter Passcode"])
+        } else {
+            waitforExistence(app.staticTexts["Enter Passcode"])
+        }
 
         disablePasscode("1337")
     }

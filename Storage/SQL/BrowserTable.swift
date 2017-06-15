@@ -35,6 +35,8 @@ let TableActivityStreamBlocklist = "activity_stream_blocklist"
 let TablePageMetadata = "page_metadata"
 let TableHighlights = "highlights"
 
+let TableRemoteDevices = "remote_devices" // Added in v29.
+
 let ViewBookmarksBufferOnMirror = "view_bookmarksBuffer_on_mirror"
 let ViewBookmarksBufferWithDeletionsOnMirror = "view_bookmarksBuffer_with_deletions_on_mirror"
 let ViewBookmarksBufferStructureOnMirror = "view_bookmarksBufferStructure_on_mirror"
@@ -80,7 +82,8 @@ private let AllTables: [String] = [
     TableActivityStreamBlocklist,
     TablePageMetadata,
     TableHighlights,
-    TablePinnedTopSites
+    TablePinnedTopSites,
+    TableRemoteDevices
 ]
 
 private let AllViews: [String] = [
@@ -118,7 +121,7 @@ private let log = Logger.syncLogger
  * We rely on SQLiteHistory having initialized the favicon table first.
  */
 open class BrowserTable: Table {
-    static let DefaultVersion = 28    // Bug 1380062.
+    static let DefaultVersion = 30    // Bug 1387492.
 
     // TableInfo fields.
     var name: String { return "BROWSER" }
@@ -496,8 +499,19 @@ open class BrowserTable: Table {
     "type = \(BookmarkNodeType.bookmark.rawValue) AND is_deleted IS 0 " +
     "UNION ALL " +
     "SELECT guid, bmkUri AS url, title, description, -1 AS faviconID FROM " +
-    "\(TableBookmarksBuffer) WHERE " +
-    "type = \(BookmarkNodeType.bookmark.rawValue) AND is_deleted IS 0"
+    "\(TableBookmarksBuffer) bb WHERE " +
+    "bb.type = \(BookmarkNodeType.bookmark.rawValue) AND bb.is_deleted IS 0 " +
+
+    // Exclude pending bookmark deletions.
+    "AND NOT EXISTS (SELECT 1 FROM \(TablePendingBookmarksDeletions) AS pd WHERE pd.id = bb.guid)"
+
+    // This exists only to allow upgrade from old versions. We have view dependencies, so
+    // we can't simply skip creating ViewAllBookmarks. Here's a stub.
+    fileprivate let oldAllBookmarksView =
+        "CREATE VIEW \(ViewAllBookmarks) AS " +
+            "SELECT guid, bmkUri AS url, title, description, faviconID FROM " +
+            "\(TableBookmarksMirror) WHERE " +
+            "type = \(BookmarkNodeType.bookmark.rawValue) AND is_overridden IS 0 AND is_deleted IS 0"
 
     // This smushes together remote and local visits. So it goes.
     fileprivate let historyVisitsView =
@@ -530,6 +544,18 @@ open class BrowserTable: Table {
     fileprivate let pendingBookmarksDeletions =
     "CREATE TABLE IF NOT EXISTS \(TablePendingBookmarksDeletions) (" +
     "id TEXT PRIMARY KEY REFERENCES \(TableBookmarksBuffer)(guid) ON DELETE CASCADE" +
+    ")"
+
+    fileprivate let remoteDevices =
+    "CREATE TABLE IF NOT EXISTS \(TableRemoteDevices) (" +
+    "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+    "guid TEXT UNIQUE NOT NULL, " +
+    "name TEXT NOT NULL, " +
+    "type TEXT NOT NULL, " +
+    "is_current_device INTEGER NOT NULL, " +
+    "date_created INTEGER NOT NULL, " + // Timestamps in ms.
+    "date_modified INTEGER NOT NULL, " +
+    "last_access_time INTEGER" +
     ")"
 
     func create(_ db: SQLiteDBConnection) -> Bool {
@@ -643,6 +669,7 @@ open class BrowserTable: Table {
             "ON \(TableBookmarksMirrorStructure) (child)"
 
         let queries: [String] = [
+            // Tables.
             self.domainsTableCreate,
             history,
             favicons,
@@ -654,23 +681,29 @@ open class BrowserTable: Table {
             bookmarksMirror,
             bookmarksMirrorStructure,
             self.pendingBookmarksDeletions,
-            indexBufferStructureParentIdx,
-            indexLocalStructureParentIdx,
-            indexMirrorStructureParentIdx,
-            indexMirrorStructureChild,
             faviconSites,
-            indexShouldUpload,
-            indexSiteIDDate,
             widestFavicons,
             historyIDsWithIcon,
             iconForURL,
             pageMetadataCreate,
             pinnedTopSitesTableCreate,
             highlightsCreate,
+            self.remoteDevices,
+            activityStreamBlocklistCreate,
             indexPageMetadataSiteURLCreate,
             indexPageMetadataCacheKeyCreate,
             self.queueTableCreate,
             self.topSitesTableCreate,
+
+            // Indices.
+            indexBufferStructureParentIdx,
+            indexLocalStructureParentIdx,
+            indexMirrorStructureParentIdx,
+            indexMirrorStructureChild,
+            indexShouldUpload,
+            indexSiteIDDate,
+
+            // Views.
             self.localBookmarksView,
             self.localBookmarksStructureView,
             self.bufferBookmarksView,
@@ -680,7 +713,6 @@ open class BrowserTable: Table {
             historyVisitsView,
             awesomebarBookmarksView,
             awesomebarBookmarksWithIconsView,
-            activityStreamBlocklistCreate
         ]
 
         assert(queries.count == AllTablesIndicesAndViews.count, "Did you forget to add your table, index, or view to the list?")
@@ -883,9 +915,9 @@ open class BrowserTable: Table {
 
         if from < 16 && to >= 16 {
             if !self.run(db, queries: [
-                allBookmarksView,
+                oldAllBookmarksView,         // Replaced in v30. The new one is not compatible here.
                 historyVisitsView,
-                awesomebarBookmarksView,
+                awesomebarBookmarksView,     // … but this depends on ViewAllBookmarks.
                 awesomebarBookmarksWithIconsView]) {
                 return false
             }
@@ -1004,6 +1036,25 @@ open class BrowserTable: Table {
             if !self.run(db, queries: [
                 self.pendingBookmarksDeletions,
                 self.bufferBookmarksWithDeletionsView
+            ]) {
+                return false
+            }
+        }
+
+        if from < 29 && to >= 29 {
+            if !self.run(db, queries: [
+                self.remoteDevices
+            ]) {
+                return false
+            }
+        }
+
+        if from < 30 && to >= 30 {
+            // We changed this view as a follow-up to the above in order to exclude buffer
+            // deletions from the bookmarked set.
+            if !self.run(db, queries: [
+                "DROP VIEW IF EXISTS \(ViewAllBookmarks)",
+                allBookmarksView
             ]) {
                 return false
             }

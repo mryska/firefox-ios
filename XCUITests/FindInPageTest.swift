@@ -101,7 +101,7 @@ class FindInPageTests: BaseTestCase {
         let stringToFind = app.webViews.staticTexts.matching(identifier: textToFind)
         let firstStringToFind = stringToFind.element(boundBy: 0)
         firstStringToFind.press(forDuration: 5)
-
+        
         // Find in page is correctly launched, bar with text pre-filled and the buttons to find next and previous
         waitforExistence(app.menuItems["Find in Page"])
         app.menuItems["Find in Page"].tap()
