@@ -344,5 +344,7 @@ extension FxALoginHelper {
         // Cleanup the FxALoginHelper.
         self.account = nil
         self.accountVerified = nil
+
+        self.profile?.prefs.removeObjectForKey(PendingAccountDisconnectedKey)
     }
 }
