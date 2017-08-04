@@ -167,7 +167,7 @@ class BrowserViewController: UIViewController {
     }
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
-        return UIStatusBarStyle.lightContent
+        return UIStatusBarStyle.default
     }
 
     func shouldShowFooterForTraitCollection(_ previousTraitCollection: UITraitCollection) -> Bool {
@@ -352,10 +352,10 @@ class BrowserViewController: UIViewController {
 
         log.debug("BVC adding footer and header…")
         footerBackdrop = UIView()
-        footerBackdrop.backgroundColor = UIColor.white
+        footerBackdrop.backgroundColor = UIColor.clear
         view.addSubview(footerBackdrop)
         headerBackdrop = UIView()
-        headerBackdrop.backgroundColor = UIColor.white
+        headerBackdrop.backgroundColor = UIColor.clear
         view.addSubview(headerBackdrop)
 
         log.debug("BVC setting up webViewContainer…")
@@ -571,11 +571,6 @@ class BrowserViewController: UIViewController {
         updateTabCountUsingTabManager(tabManager, animated: false)
         clipboardBarDisplayHandler?.checkIfShouldDisplayBar()
         log.debug("BVC done.")
-
-        NotificationCenter.default.addObserver(self,
-                                                         selector: #selector(BrowserViewController.openSettings),
-                                                         name: NSNotification.Name(rawValue: NotificationStatusNotificationTapped),
-                                                         object: nil)
     }
 
     fileprivate func crashedLastLaunch() -> Bool {
@@ -669,7 +664,6 @@ class BrowserViewController: UIViewController {
 
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        NotificationCenter.default.removeObserver(self, name: NSNotification.Name(rawValue: NotificationStatusNotificationTapped), object: nil)
     }
 
     func resetBrowserChrome() {
@@ -3170,6 +3164,7 @@ class BlurWrapper: UIView {
             switch blurStyle {
             case .extraLight, .light:
                 background.backgroundColor = TopTabsUX.TopTabsBackgroundNormalColor
+                background.backgroundColor = .clear
             case .extraDark, .dark:
                 background.backgroundColor = TopTabsUX.TopTabsBackgroundPrivateColor
             default:

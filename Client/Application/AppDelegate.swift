@@ -74,7 +74,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UIViewControllerRestorati
         log.debug("Configuring window…")
 
         self.window = UIWindow(frame: UIScreen.main.bounds)
-        self.window!.backgroundColor = UIConstants.AppBackgroundColor
+        self.window!.backgroundColor = UIColor.white
 
         // Short circuit the app if we want to email logs from the debug menu
         if DebugSettingsBundleOptions.launchIntoEmailComposer {
@@ -153,13 +153,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UIViewControllerRestorati
         let navigationController = UINavigationController(rootViewController: browserViewController)
         navigationController.delegate = self
         navigationController.isNavigationBarHidden = true
-
-        //  This was an old feature that never made it to release. It was kind of buggy so it might be worth either removing entirely or making the deep links worth with it. Essentially it replaces the UINavigationController we setup with a subclass that shows a notification view in place of the status bar.
-//        if AppConstants.MOZ_STATUS_BAR_NOTIFICATION {
-//            rootViewController = NotificationRootViewController(rootViewController: navigationController)
-//        } else {
-            rootViewController = navigationController
-//        }
+        navigationController.topLayoutGuide
+        rootViewController = navigationController
 
         self.window!.rootViewController = rootViewController
 

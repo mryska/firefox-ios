@@ -8,7 +8,7 @@ import Shared
 public struct UIConstants {
     static let AboutHomePage = URL(string: "\(WebServer.sharedInstance.base)/about/home/")!
 
-    static let AppBackgroundColor = UIColor.black
+    static let AppBackgroundColor = UIColor(rgb: 0xf9f9fa)
     static let SystemBlueColor = UIColor(rgb: 0x0297F8)
     static let PrivateModePurple = UIColor(red: 207 / 255, green: 104 / 255, blue: 255 / 255, alpha: 1)
     static let PrivateModeLocationBackgroundColor = UIColor(red: 31 / 255, green: 31 / 255, blue: 31 / 255, alpha: 1)
@@ -42,10 +42,10 @@ public struct UIConstants {
     static let HighlightBlue = UIColor(red:76/255, green:158/255, blue:255/255, alpha:1)
     static let DestructiveRed = UIColor(red: 255/255, green: 64/255, blue: 0/255, alpha: 1.0)
     static let BorderColor = UIColor.black.withAlphaComponent(0.25)
-    static let BackgroundColor = UIColor(red: 0.21, green: 0.23, blue: 0.25, alpha: 1)
+    static let BackgroundColor = AppBackgroundColor
 
     // These colours are used on the Menu
-    static let MenuToolbarBackgroundColorNormal = UIColor(red: 241/255, green: 241/255, blue: 241/255, alpha: 1.0)
+    static let MenuToolbarBackgroundColorNormal = AppBackgroundColor
     static let MenuToolbarBackgroundColorPrivate = UIColor(red: 74/255, green: 74/255, blue: 74/255, alpha: 1.0)
     static let MenuToolbarTintColorNormal = BackgroundColor
     static let MenuToolbarTintColorPrivate = UIColor.white

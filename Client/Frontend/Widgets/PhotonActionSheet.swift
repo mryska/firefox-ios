@@ -41,6 +41,7 @@ class PhotonActionSheet: UIViewController, UITableViewDelegate, UITableViewDataS
     private var site: Site?
     private let style: PresentationStyle
     private var tableView = UITableView()
+    private var tintColor = UIColor(rgb: 0x373736)
 
     lazy var tapRecognizer: UITapGestureRecognizer = {
         let tapRecognizer = UITapGestureRecognizer()
@@ -73,8 +74,8 @@ class PhotonActionSheet: UIViewController, UITableViewDelegate, UITableViewDataS
 
         if style == .centered {
             applyBackgroundBlur()
+            self.tintColor = UIConstants.SystemBlueColor
         }
-
         view.addGestureRecognizer(tapRecognizer)
         view.addSubview(tableView)
         view.accessibilityIdentifier = "Action Sheet"
@@ -84,7 +85,8 @@ class PhotonActionSheet: UIViewController, UITableViewDelegate, UITableViewDataS
         tableView.keyboardDismissMode = UIScrollViewKeyboardDismissMode.onDrag
         tableView.register(PhotonActionSheetCell.self, forCellReuseIdentifier: PhotonActionSheetUX.CellName)
         tableView.register(PhotonActionSheetHeaderView.self, forHeaderFooterViewReuseIdentifier: PhotonActionSheetUX.HeaderName)
-        tableView.backgroundColor = UIConstants.PanelBackgroundColor
+        tableView.backgroundColor = UIColor.lightGray
+        tableView.alpha = 0.95
         tableView.isScrollEnabled = true
         tableView.bounces = false
         tableView.layer.cornerRadius = 10
@@ -205,6 +207,7 @@ class PhotonActionSheet: UIViewController, UITableViewDelegate, UITableViewDataS
 
         // Only show separators when we have one section or on the first item of a section (we show separators at the top of a row)
         let hasSeparator = actions.count == 1 ? true : indexPath.row == 0 && indexPath.section != 0
+        cell.tintColor = self.tintColor
         cell.configureCell(action.title, imageString: action.iconString, hasSeparator: hasSeparator)
         return cell
     }
@@ -214,6 +217,7 @@ class PhotonActionSheet: UIViewController, UITableViewDelegate, UITableViewDataS
             return nil
         }
         let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: PhotonActionSheetUX.HeaderName) as! PhotonActionSheetHeaderView
+        header.tintColor = self.tintColor
         header.configureWithSite(site)
         return header
     }
@@ -226,7 +230,7 @@ private class PhotonActionSheetHeaderView: UITableViewHeaderFooterView {
     lazy var titleLabel: UILabel = {
         let titleLabel = UILabel()
         titleLabel.font = DynamicFontHelper.defaultHelper.MediumSizeBoldFontAS
-        titleLabel.textColor = PhotonActionSheetUX.LabelColor
+      //  titleLabel.textColor = PhotonActionSheetUX.LabelColor
         titleLabel.textAlignment = .left
         titleLabel.numberOfLines = 2
         return titleLabel
@@ -235,7 +239,7 @@ private class PhotonActionSheetHeaderView: UITableViewHeaderFooterView {
     lazy var descriptionLabel: UILabel = {
         let titleLabel = UILabel()
         titleLabel.font = DynamicFontHelper.defaultHelper.MediumSizeRegularWeightAS
-        titleLabel.textColor = PhotonActionSheetUX.DescriptionLabelColor
+    //    titleLabel.textColor = PhotonActionSheetUX.DescriptionLabelColor
         titleLabel.textAlignment = .left
         titleLabel.numberOfLines = 1
         return titleLabel
@@ -258,7 +262,7 @@ private class PhotonActionSheetHeaderView: UITableViewHeaderFooterView {
         layer.rasterizationScale = UIScreen.main.scale
         isAccessibilityElement = true
 
-        contentView.backgroundColor = UIConstants.PanelBackgroundColor
+        contentView.backgroundColor = UIColor.lightGray
         contentView.addSubview(siteImageView)
 
         siteImageView.snp.remakeConstraints { make in
@@ -317,7 +321,7 @@ private class PhotonActionSheetCell: UITableViewCell {
         let titleLabel = UILabel()
         titleLabel.font = DynamicFontHelper.defaultHelper.LargeSizeRegularWeightAS
         titleLabel.minimumScaleFactor = 0.8 // Scale the font if we run out of space
-        titleLabel.textColor = PhotonActionSheetCellUX.LabelColor
+     //   titleLabel.textColor = PhotonActionSheetCellUX.LabelColor
         titleLabel.textAlignment = .left
         titleLabel.numberOfLines = 1
         return titleLabel
@@ -398,7 +402,7 @@ private class PhotonActionSheetCell: UITableViewCell {
 
         if let image = UIImage(named: imageString)?.withRenderingMode(.alwaysTemplate) {
             statusIcon.image = image
-            statusIcon.tintColor = UIConstants.SystemBlueColor
+            statusIcon.tintColor = self.tintColor
         }
     }
 }

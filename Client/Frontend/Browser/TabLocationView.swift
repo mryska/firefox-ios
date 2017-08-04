@@ -120,6 +120,7 @@ class TabLocationView: UIView {
         urlTextField.accessibilityIdentifier = "url"
         urlTextField.accessibilityActionsSource = self
         urlTextField.font = UIConstants.DefaultChromeFont
+        urlTextField.backgroundColor = UIColor.clear
         return urlTextField
     }()
 
@@ -270,7 +271,7 @@ extension TabLocationView: Themeable {
         }
         baseURLFontColor = theme.URLFontColor!
         hostFontColor = theme.hostFontColor!
-        backgroundColor = theme.backgroundColor
+        backgroundColor = .clear
     }
 }
 
