@@ -75,6 +75,7 @@ class PhotonActionSheet: UIViewController, UITableViewDelegate, UITableViewDataS
         if style == .centered {
             applyBackgroundBlur()
             self.tintColor = UIConstants.SystemBlueColor
+            
         }
         view.addGestureRecognizer(tapRecognizer)
         view.addSubview(tableView)
