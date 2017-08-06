@@ -5,8 +5,23 @@
 import Foundation
 import Shared
 
+
+
 public struct UIConstants {
     static let AboutHomePage = URL(string: "\(WebServer.sharedInstance.base)/about/home/")!
+
+    // Photon Colors. Remove old colors once we've completly transitioned
+    static let BrowserUI = BrowserColor(normal: 0xf9f9fa, pbm: 0x38383D)
+    static let TextColor = BrowserColor(normal: 0xffffff, pbm: 0x414146)
+    static let TabTrayBG = UIColor(rgb: 0x272727)
+
+    // The loading bar starts with one color and then animates to the second one
+    static let LoadingBarStart = BrowserColor(normal: 0x00DCFC, pbm: 0x9f00ff)
+    static let LoadingBarEnd = BrowserColor(normal: 0x0A84FF, pbm: 0xff1ad9)
+
+    static let TextSelectionBG = UIColor(rgb: 0xE4E4E4)
+
+    static let TopTabsBG = TabTrayBG
 
     static let AppBackgroundColor = UIColor(rgb: 0xf9f9fa)
     static let SystemBlueColor = UIColor(rgb: 0x0297F8)
