@@ -5,7 +5,18 @@
 import Foundation
 import Shared
 
-
+// A browser color represents the color of UI in both Private browsing mode and normal mode
+struct BrowserColor {
+    let normalColor: Int
+    let PBMColor: Int
+    init(normal: Int, pbm: Int) {
+        self.normalColor = normal
+        self.PBMColor = pbm
+    }
+    func color(isPBM: Bool) -> UIColor {
+        return UIColor(rgb: isPBM ? PBMColor : normalColor)
+    }
+}
 
 public struct UIConstants {
     static let AboutHomePage = URL(string: "\(WebServer.sharedInstance.base)/about/home/")!

@@ -1753,23 +1753,16 @@ extension BrowserViewController: TabToolbarDelegate, PhotonActionSheetProtocol {
         if FeatureSwitches.photonMenu.isMember(profile.prefs) {
             var actions: [[PhotonActionSheetItem]] = []
 
+            let homePanelActions = self.getHomePanelActions(openURL: { (url) in
+                self.openURLInNewTab(url, isPrivate: false, isPrivileged: true)
+            })
             let tabActions = self.getTabMenuActions(openURL: { (url, isPrivate) in
                 self.openURLInNewTab(url, isPrivate: isPrivate, isPrivileged: true)
             })
+            let systemActions = self.getOtherPanelActions(vcDelegate: self)
+            actions.append(systemActions)
+            actions.append(homePanelActions)
             actions.append(tabActions)
-
-            let actionMenuPresenter: (URL, Tab, UIView, UIPopoverArrowDirection) -> Void  = { (url, tab, view, direction) in
-                self.presentActivityViewController(url, tab: tab, sourceView: view, sourceRect: view.frame, arrowDirection: .up)
-            }
-
-            // The logic of which actions appear when isnt final.
-            if let tab = self.tabManager.selectedTab, let url = tab.url, !url.isLocal {
-                let pageActions = self.getTabActions(tab: tab, buttonView: button, presentShareMenu: actionMenuPresenter)
-                actions.append(pageActions)
-            } else {
-                let systemActions = self.getOtherPanelActions(vcDelegate: self)
-                actions.append(systemActions)
-            }
             self.presentSheetWith(actions: actions, on: self, from: button)
             return
         }
@@ -1826,6 +1819,21 @@ extension BrowserViewController: TabToolbarDelegate, PhotonActionSheetProtocol {
     }
 
     func tabToolbarDidPressShare(_ tabToolbar: TabToolbarProtocol, button: UIButton) {
+        if FeatureSwitches.photonMenu.isMember(profile.prefs) {
+
+
+            let actionMenuPresenter: (URL, Tab, UIView, UIPopoverArrowDirection) -> Void  = { (url, tab, view, direction) in
+                self.presentActivityViewController(url, tab: tab, sourceView: view, sourceRect: view.frame, arrowDirection: .up)
+            }
+
+            // The logic of which actions appear when isnt final.
+            if let tab = self.tabManager.selectedTab, let url = tab.url, !url.isLocal {
+                let pageActions = self.getTabActions(tab: tab, buttonView: button, presentShareMenu: actionMenuPresenter)
+                self.presentSheetWith(actions: pageActions, on: self, from: button)
+            }
+            return
+        }
+
         if let tab = tabManager.selectedTab, let url = tab.url?.displayURL {
             let sourceView = self.navigationToolbar.shareButton
             presentActivityViewController(url, tab: tab, sourceView: sourceView.superview, sourceRect: sourceView.frame, arrowDirection: .up)

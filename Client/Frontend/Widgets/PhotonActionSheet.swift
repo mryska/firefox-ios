@@ -40,6 +40,9 @@ class PhotonActionSheet: UIViewController, UITableViewDelegate, UITableViewDataS
 
     private var site: Site?
     private let style: PresentationStyle
+    private lazy var showCancelButton: Bool = {
+        return self.style == .bottom && self.modalPresentationStyle != .popover
+    }()
     private var tableView = UITableView()
     private var tintColor = UIColor(rgb: 0x373736)
 
@@ -50,6 +53,16 @@ class PhotonActionSheet: UIViewController, UITableViewDelegate, UITableViewDataS
         tapRecognizer.cancelsTouchesInView = false
         tapRecognizer.delegate = self
         return tapRecognizer
+    }()
+
+    lazy var cancelButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("Cancel", for: .normal)
+        button.backgroundColor = .white
+        button.setTitleColor(.black, for: .normal)
+        button.layer.cornerRadius = 10
+        button.addTarget(self, action: #selector(PhotonActionSheet.dismiss(_:)), for:.touchUpInside)
+        return button
     }()
 
     init(site: Site, actions: [PhotonActionSheetItem]) {
@@ -81,6 +94,8 @@ class PhotonActionSheet: UIViewController, UITableViewDelegate, UITableViewDataS
         view.addSubview(tableView)
         view.accessibilityIdentifier = "Action Sheet"
 
+        view.backgroundColor = UIColor(white: 0, alpha: 0.25)
+
         tableView.delegate = self
         tableView.dataSource = self
         tableView.keyboardDismissMode = UIScrollViewKeyboardDismissMode.onDrag
@@ -101,17 +116,29 @@ class PhotonActionSheet: UIViewController, UITableViewDelegate, UITableViewDataS
             self.preferredContentSize = CGSize(width: width, height: height)
         }
 
+        if self.showCancelButton {
+            view.addSubview(cancelButton)
+            cancelButton.snp.makeConstraints { make in
+                make.centerX.equalTo(self.view.snp.centerX)
+                make.width.equalTo(width)
+                make.height.equalTo(PhotonActionSheetUX.RowHeight)
+                make.bottom.equalTo(self.view.snp.bottom).offset(-10)
+            }
+        }
+
         tableView.snp.makeConstraints { make in
             make.centerX.equalTo(self.view.snp.centerX)
             switch style {
                 case .bottom:
-                    make.bottom.equalTo(self.view.snp.bottom)
+                    make.bottom.equalTo(self.cancelButton.snp.top).offset(-10)
                 case .centered:
                     make.centerY.equalTo(self.view.snp.centerY)
             }
             make.width.equalTo(width)
-            make.height.lessThanOrEqualTo(view.bounds.height)
-            make.height.equalTo(height).priority(10)
+            make.height.lessThanOrEqualTo(Int(view.bounds.height * 0.8))
+            // TODO: This is dumb!
+            let h = min(height, view.bounds.height * 0.8)
+            make.height.equalTo(h).priority(10)
         }
     }
 
@@ -147,8 +174,10 @@ class PhotonActionSheet: UIViewController, UITableViewDelegate, UITableViewDataS
         let height = actionSheetHeight()
 
         tableView.snp.updateConstraints { make in
-            make.height.lessThanOrEqualTo(view.bounds.height)
-            make.height.equalTo(height).priority(10)
+            make.height.lessThanOrEqualTo(Int(view.bounds.height * 0.8))
+            let h = min(height, view.bounds.height * 0.8)
+
+            make.height.equalTo(h).priority(10)
         }
         super.updateViewConstraints()
     }

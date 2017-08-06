@@ -33,19 +33,19 @@ extension PhotonActionSheetProtocol {
     //Returns a list of actions which is used to build a menu
     //parameter OpenURL is a clousre that can open a given URL in some view controller. It is up to the class using the menu to know how to open the url
     func getHomePanelActions(openURL: @escaping (URL) -> Void) -> [PhotonActionSheetItem] {
-        let openTopSites = PhotonActionSheetItem(title: Strings.AppMenuTopSitesTitleString, iconString: "menupanel-TopSites") { action in
+        let openTopSites = PhotonActionSheetItem(title: Strings.AppMenuTopSitesTitleString, iconString: "menu-panel-TopSites") { action in
             openURL(HomePanelType.topSites.localhostURL)
         }
 
-        let openBookmarks = PhotonActionSheetItem(title: Strings.AppMenuBookmarksTitleString, iconString: "menupanel-Bookmarks") { action in
+        let openBookmarks = PhotonActionSheetItem(title: Strings.AppMenuBookmarksTitleString, iconString: "menu-panel-Bookmarks") { action in
             openURL(HomePanelType.bookmarks.localhostURL)
         }
 
-        let openHistory = PhotonActionSheetItem(title: Strings.AppMenuHistoryTitleString, iconString: "menupanel-History") { action in
+        let openHistory = PhotonActionSheetItem(title: Strings.AppMenuHistoryTitleString, iconString: "menu-panel-History") { action in
             openURL(HomePanelType.history.localhostURL)
         }
 
-        let openReadingList = PhotonActionSheetItem(title: Strings.AppMenuReadingListTitleString, iconString: "menupanel-ReadingList") { action in
+        let openReadingList = PhotonActionSheetItem(title: Strings.AppMenuReadingListTitleString, iconString: "menu-panel-ReadingList") { action in
             openURL(HomePanelType.readingList.localhostURL)
         }
 
@@ -93,7 +93,7 @@ extension PhotonActionSheetProtocol {
         return [openSettings, openQR, noImageMode, nightMode]
     }
 
-    func getTabActions(tab: Tab, buttonView: UIView, presentShareMenu: @escaping (URL, Tab, UIView, UIPopoverArrowDirection) -> Void) -> [PhotonActionSheetItem] {
+    func getTabActions(tab: Tab, buttonView: UIView, presentShareMenu: @escaping (URL, Tab, UIView, UIPopoverArrowDirection) -> Void) -> Array<[PhotonActionSheetItem]> {
 
         let toggleActionTitle = tab.desktopSite ? Strings.AppMenuViewMobileSiteTitleString : Strings.AppMenuViewDesktopSiteTitleString
         let toggleDesktopSite = PhotonActionSheetItem(title: toggleActionTitle, iconString: "menu-RequestDesktopSite") { action in
@@ -106,6 +106,15 @@ extension PhotonActionSheetProtocol {
         }
 
         //TODO: Add to pocket
+
+
+        let addReadingList = PhotonActionSheetItem(title: "Add to Reading List", iconString: "addToReadingList") { action in
+            //do something steve!
+        }
+
+        let findInPage = PhotonActionSheetItem(title: Strings.AppMenuFindInPageTitleString, iconString: "menu-FindInPage") { action in
+            //do something steve!
+        }
 
         let bookmarkPage = PhotonActionSheetItem(title: Strings.AppMenuAddBookmarkTitleString, iconString: "menu-Bookmark") { action in
             //TODO: can all this logic go somewhere else?
@@ -136,14 +145,14 @@ extension PhotonActionSheetProtocol {
             }
         }
 
-        let share = PhotonActionSheetItem(title: "Share", iconString: "") { action in
+        let share = PhotonActionSheetItem(title: "Share", iconString: "action_share") { action in
             guard let url = self.tabManager.selectedTab?.url else { return }
             guard let tab = self.tabManager.selectedTab else { return }
             presentShareMenu(url, tab, buttonView, .up)
         }
 
         let bookmarkAction = tab.isBookmarked ? removeBookmark : bookmarkPage
-        return [toggleDesktopSite, bookmarkAction, setHomePage, share]
+        return [[bookmarkAction, addReadingList], [ findInPage, toggleDesktopSite, setHomePage], [share]]
     }
 
     func getTabMenuActions(openURL: @escaping (URL?, Bool) -> Void) -> [PhotonActionSheetItem] {
