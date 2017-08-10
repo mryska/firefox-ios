@@ -16,7 +16,7 @@ struct TabsButtonUX {
     static let TitleFont: UIFont = UIConstants.DefaultChromeSmallFontBold
     static let BorderStrokeWidth: CGFloat = 2
     static let BorderColor: UIColor = UIColor.black
-    static let TitleInsets = UIEdgeInsets(top: 12, left: 12, bottom: 12, right: 12)
+    static let TitleInsets = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
 
     static let Themes: [String: Theme] = {
         var themes = [String: Theme]()
@@ -182,7 +182,7 @@ class TabsButton: UIControl {
             newTabsButton.snp.makeConstraints { make in
                 make.centerY.equalTo(self)
                 make.trailing.equalTo(self)
-                make.size.equalTo(UIConstants.ToolbarHeight)
+                make.size.equalTo(24)
             }
             
             newTabsButton.frame = self.frame

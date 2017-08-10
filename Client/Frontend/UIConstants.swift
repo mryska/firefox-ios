@@ -25,7 +25,10 @@ public struct UIConstants {
     static let BrowserUI = BrowserColor(normal: 0xf9f9fa, pbm: 0x38383D)
     static let TextColor = BrowserColor(normal: 0xffffff, pbm: 0x414146)
     static let TabTrayBG = UIColor(rgb: 0x272727)
+    static let locationBarBG = UIColor(rgb: 0xD7D7DB).withAlphaComponent(0.5)
 
+    //Photon UI sizes
+    static let TopToolbarHeight: CGFloat = 56
     // The loading bar starts with one color and then animates to the second one
     static let LoadingBarStart = BrowserColor(normal: 0x00DCFC, pbm: 0x9f00ff)
     static let LoadingBarEnd = BrowserColor(normal: 0x0A84FF, pbm: 0xff1ad9)
@@ -45,13 +48,13 @@ public struct UIConstants {
     static let PrivateModeAssistantToolbarBackgroundColor = UIColor(red: 89 / 255, green: 89 / 255, blue: 89 / 255, alpha: 1)
     static let PrivateModeToolbarTintColor = UIColor(red: 74 / 255, green: 74 / 255, blue: 74 / 255, alpha: 1)
 
-    static let ToolbarHeight: CGFloat = 44
+    static let ToolbarHeight: CGFloat = 46
     static let DefaultRowHeight: CGFloat = 58
     static let DefaultPadding: CGFloat = 10
     static let SnackbarButtonHeight: CGFloat = 48
 
     // Static fonts
-    static let DefaultChromeSize: CGFloat = 14
+    static let DefaultChromeSize: CGFloat = 16
     static let DefaultChromeSmallSize: CGFloat = 11
     static let PasscodeEntryFontSize: CGFloat = 36
     static let DefaultChromeFont: UIFont = UIFont.systemFont(ofSize: DefaultChromeSize, weight: UIFontWeightRegular)

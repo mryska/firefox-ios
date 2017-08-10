@@ -120,13 +120,14 @@ class TabLocationView: UIView {
         urlTextField.accessibilityIdentifier = "url"
         urlTextField.accessibilityActionsSource = self
         urlTextField.font = UIConstants.DefaultChromeFont
-        urlTextField.backgroundColor = UIColor.clear
+        urlTextField.backgroundColor = .clear
         return urlTextField
     }()
 
     fileprivate lazy var lockImageView: UIImageView = {
-        let lockImageView = UIImageView(image: UIImage(named: "lock_verified.png"))
+        let lockImageView = UIImageView(image: UIImage.templateImageNamed("lock_verified"))
         lockImageView.isHidden = true
+        lockImageView.tintColor = UIColor(rgb: 0x16DA00)
         lockImageView.isAccessibilityElement = true
         lockImageView.contentMode = UIViewContentMode.center
         lockImageView.accessibilityLabel = NSLocalizedString("Secure connection", comment: "Accessibility label for the lock icon, which is only present if the connection is secure")
@@ -155,13 +156,14 @@ class TabLocationView: UIView {
         addSubview(readerModeButton)
 
         lockImageView.snp.makeConstraints { make in
-            make.leading.centerY.equalTo(self)
-            make.width.equalTo(self.lockImageView.intrinsicContentSize.width + CGFloat(TabLocationViewUX.LocationContentInset * 2))
+            make.size.equalTo(24)
+            make.centerY.equalTo(self)
+            make.leading.equalTo(self).offset(9)
         }
 
         readerModeButton.snp.makeConstraints { make in
             make.trailing.centerY.equalTo(self)
-            make.width.equalTo(self.readerModeButton.intrinsicContentSize.width + CGFloat(TabLocationViewUX.LocationContentInset * 2))
+            make.size.equalTo(24)
         }
     }
 
@@ -185,7 +187,7 @@ class TabLocationView: UIView {
             if lockImageView.isHidden {
                 make.leading.equalTo(self).offset(TabLocationViewUX.LocationContentInset)
             } else {
-                make.leading.equalTo(self.lockImageView.snp.trailing)
+                make.leading.equalTo(self.lockImageView.snp.trailing).offset(9)
             }
 
             if readerModeButton.isHidden {
@@ -227,10 +229,10 @@ class TabLocationView: UIView {
             // Highlight the base domain of the current URL.
             let attributedString = NSMutableAttributedString(string: httplessURL)
             let nsRange = NSRange(location: 0, length: httplessURL.characters.count)
-            attributedString.addAttribute(NSForegroundColorAttributeName, value: baseURLFontColor, range: nsRange)
-            attributedString.colorSubstring(baseDomain, withColor: hostFontColor)
-            attributedString.addAttribute(UIAccessibilitySpeechAttributePitch, value: NSNumber(value: TabLocationViewUX.BaseURLPitch), range: nsRange)
-            attributedString.pitchSubstring(baseDomain, withPitch: TabLocationViewUX.HostPitch)
+//            attributedString.addAttribute(NSForegroundColorAttributeName, value: baseURLFontColor, range: nsRange)
+//            attributedString.colorSubstring(baseDomain, withColor: hostFontColor)
+//            attributedString.addAttribute(UIAccessibilitySpeechAttributePitch, value: NSNumber(value: TabLocationViewUX.BaseURLPitch), range: nsRange)
+//            attributedString.pitchSubstring(baseDomain, withPitch: TabLocationViewUX.HostPitch)
             urlTextField.attributedText = attributedString
         } else {
             // If we're unable to highlight the domain, just use the URL as is.
@@ -271,7 +273,6 @@ extension TabLocationView: Themeable {
         }
         baseURLFontColor = theme.URLFontColor!
         hostFontColor = theme.hostFontColor!
-        backgroundColor = .clear
     }
 }
 

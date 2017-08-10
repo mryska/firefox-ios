@@ -14,10 +14,10 @@ struct URLBarViewUX {
     static let TextFieldBorderColor = UIColor(rgb: 0xBBBBBB)
     static let TextFieldActiveBorderColor = UIColor(rgb: 0x4A90E2)
     static let LocationLeftPadding = 5
-    static let LocationHeight = 28
+    static let LocationHeight = 42
     static let LocationContentOffset: CGFloat = 8
-    static let TextFieldCornerRadius: CGFloat = 3
-    static let TextFieldBorderWidth: CGFloat = 1
+    static let TextFieldCornerRadius: CGFloat = 8
+    static let TextFieldBorderWidth: CGFloat = 0
     // offset from edge of tabs button
     static let ProgressTintColor = UIColor(red:1, green:0.32, blue:0, alpha:1)
 
@@ -118,7 +118,7 @@ class URLBarView: UIView {
         locationView.translatesAutoresizingMaskIntoConstraints = false
         locationView.readerModeState = ReaderModeState.unavailable
         locationView.delegate = self
-        locationView.backgroundColor = .clear
+        locationView.backgroundColor = UIConstants.locationBarBG
         return locationView
     }()
 
@@ -132,10 +132,12 @@ class URLBarView: UIView {
         locationContainer.layer.borderColor = self.locationBorderColor.cgColor
         locationContainer.layer.cornerRadius = URLBarViewUX.TextFieldCornerRadius
         locationContainer.layer.borderWidth = URLBarViewUX.TextFieldBorderWidth
-        locationContainer.backgroundColor = UIColor.clear
+        locationContainer.backgroundColor = UIConstants.locationBarBG
 
         return locationContainer
     }()
+    
+    let line = UIView()
 
     fileprivate lazy var tabsButton: TabsButton = {
         let tabsButton = TabsButton.tabTrayButton()
@@ -214,7 +216,9 @@ class URLBarView: UIView {
     fileprivate func commonInit() {
         backgroundColor = UIColor.clear
         addSubview(scrollToTopButton)
-
+        line.backgroundColor = UIColor(rgb: 0xD4D4D5)
+        
+        addSubview(line)
         addSubview(progressBar)
         addSubview(tabsButton)
         addSubview(cancelButton)
@@ -237,6 +241,12 @@ class URLBarView: UIView {
     }
 
     fileprivate func setupConstraints() {
+        
+        line.snp.makeConstraints { make in
+            make.bottom.leading.trailing.equalTo(self)
+            make.height.equalTo(1)
+        }
+        
         scrollToTopButton.snp.makeConstraints { make in
             make.top.equalTo(self)
             make.left.right.equalTo(self.locationContainer)
@@ -259,12 +269,12 @@ class URLBarView: UIView {
         tabsButton.snp.makeConstraints { make in
             make.centerY.equalTo(self.locationContainer)
             make.trailing.equalTo(self)
-            make.size.equalTo(UIConstants.ToolbarHeight)
+            make.size.equalTo(UIConstants.TopToolbarHeight)
         }
 
         backButton.snp.makeConstraints { make in
             make.left.centerY.equalTo(self)
-            make.size.equalTo(UIConstants.ToolbarHeight)
+            make.size.equalTo(UIConstants.TopToolbarHeight)
         }
 
         forwardButton.snp.makeConstraints { make in
@@ -312,13 +322,13 @@ class URLBarView: UIView {
                 tabsButton.snp.remakeConstraints { make in
                     make.centerY.equalTo(self.locationContainer)
                     make.leading.equalTo(self.snp.trailing)
-                    make.size.equalTo(UIConstants.ToolbarHeight)
+                    make.size.equalTo(44)
                 }
             } else {
                 tabsButton.snp.remakeConstraints { make in
                     make.centerY.equalTo(self.locationContainer)
                     make.trailing.equalTo(self)
-                    make.size.equalTo(UIConstants.ToolbarHeight)
+                    make.size.equalTo(44)
                 }
             }
             self.locationContainer.snp.remakeConstraints { make in
@@ -543,45 +553,6 @@ class URLBarView: UIView {
 
     func SELtappedScrollToTopArea() {
         delegate?.urlBarDidPressScrollToTop(self)
-    }
-
-    /// we do this so the location bar can have a transparent BG
-    override func draw(_ rect: CGRect) {
-        //TODO: Clean this up. this is ugly
-        let context = UIGraphicsGetCurrentContext()
-
-        context?.clear(self.bounds)
-
-
-        // Create a path around the entire view
-        let clipPath = UIBezierPath(rect: self.bounds)
-
-        // Your transparent window. This is for reference, but set this either as a property of the class or some other way
-        let transparentFrame: CGRect?
-
-        if self.locationContainer.alpha != 0 {
-            let path = UIBezierPath(roundedRect: self.locationContainer.frame, cornerRadius: 5)
-            // Add the transparent window
-            clipPath.append(path)
-        }
-
-
-        clipPath.usesEvenOddFillRule = true;
-        clipPath.addClip()
-
-
-        // set your color
-        let color = UIConstants.BackgroundColor
-
-
-        // (optional) set transparency alpha
-        context?.setAlpha(1)
-        // tell the color to be a fill color
-        color.setFill()
-
-        // fill the path
-        clipPath.fill()
-
     }
 }
 
@@ -851,7 +822,7 @@ extension ToolbarTextField: Themeable {
             return
         }
 
-        backgroundColor = .clear
+//        backgroundColor = .clear
         textColor = theme.textColor
         clearButtonTintColor = theme.buttonTintColor
         highlightColor = theme.highlightColor!
