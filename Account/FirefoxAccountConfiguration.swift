@@ -96,13 +96,23 @@ public struct StageFirefoxAccountConfiguration: FirefoxAccountConfiguration {
 
     public let label = FirefoxAccountConfigurationLabel.stage
 
-    public let authEndpointURL = URL(string: "https://api-accounts.stage.mozaws.net/v1")!
-    public let oauthEndpointURL = URL(string: "https://oauth.stage.mozaws.net/v1")!
-    public let profileEndpointURL = URL(string: "https://profile.stage.mozaws.net/v1")!
+/*
+     {
+     "auth":    "https://ios-push2.dev.lcip.org/auth/v1",
+     "content": "https://ios-push2.dev.lcip.org/",
+     "token":   "https://ios-push2.dev.lcip.org/syncserver/token/1.0/sync/1.5",
+     "oauth":   "https://oauth-ios-push2.dev.lcip.org/v1",
+     "profile": "https://ios-push2.dev.lcip.org/profile/v1"
+     }
+ */
 
-    public let signInURL = URL(string: "https://accounts.stage.mozaws.net/signin?service=sync&context=fx_ios_v1")!
-    public let settingsURL = URL(string: "https://accounts.stage.mozaws.net/settings?context=fx_ios_v1")!
-    public let forceAuthURL = URL(string: "https://accounts.stage.mozaws.net/force_auth?service=sync&context=fx_ios_v1")!
+    public let authEndpointURL = URL(string: "https://ios-push2.dev.lcip.org/auth/v1")!
+    public let oauthEndpointURL = URL(string: "https://oauth-ios-push2.dev.lcip.org/v1")!
+    public let profileEndpointURL = URL(string: "https://ios-push2.dev.lcip.org/profile/v1")!
+    
+    public let signInURL = URL(string: "https://ios-push2.dev.lcip.org/signin?service=sync&context=fx_ios_v1")!
+    public let settingsURL = URL(string: "https://ios-push2.dev.lcip.org/settings?context=fx_ios_v1")!
+    public let forceAuthURL = URL(string: "https://ios-push2.dev.lcip.org/force_auth?service=sync&context=fx_ios_v1")!
 
     public let sync15Configuration: Sync15Configuration = StageSync15Configuration()
 
@@ -180,5 +190,5 @@ public struct StageSync15Configuration: Sync15Configuration {
     public init() {
     }
 
-    public let tokenServerEndpointURL = URL(string: "https://token.stage.mozaws.net/1.0/sync/1.5")!
+    public let tokenServerEndpointURL = URL(string: "https://ios-push2.dev.lcip.org/syncserver/token/1.0/sync/1.5")!
 }
