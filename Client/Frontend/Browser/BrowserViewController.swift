@@ -788,7 +788,6 @@ class BrowserViewController: UIViewController {
             }
         }
         homePanelController.selectedPanel = HomePanelType(rawValue: newSelectedButtonIndex)
-        homePanelController.isPrivateMode = tabManager.selectedTab?.isPrivate ?? false
 
         // We have to run this animation, even if the view is already showing because there may be a hide animation running
         // and we want to be sure to override its results.

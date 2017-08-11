@@ -21,11 +21,11 @@ struct TabsButtonUX {
     static let Themes: [String: Theme] = {
         var themes = [String: Theme]()
         var theme = Theme()
-        theme.borderColor = UIConstants.PrivateModePurple
+        theme.borderColor = UIConstants.BorderColor
         theme.borderWidth = BorderStrokeWidth
         theme.font = UIConstants.DefaultChromeBoldFont
         theme.backgroundColor = UIConstants.AppBackgroundColor
-        theme.textColor = UIConstants.PrivateModePurple
+        theme.textColor = UIConstants.BorderColor
         theme.insets = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
         theme.highlightButtonColor = UIConstants.PrivateModePurple
         theme.highlightTextColor = TabsButtonUX.TitleColor
