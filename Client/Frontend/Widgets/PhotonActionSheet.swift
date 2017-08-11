@@ -110,7 +110,9 @@ class PhotonActionSheet: UIViewController, UITableViewDelegate, UITableViewDataS
         tableView.cellLayoutMarginsFollowReadableWidth = false
         tableView.accessibilityIdentifier = "Context Menu"
 
-        let width = min(self.view.frame.size.width, PhotonActionSheetUX.MaxWidth) - (PhotonActionSheetUX.Padding * 2)
+        var width = min(self.view.frame.size.width, PhotonActionSheetUX.MaxWidth) - (PhotonActionSheetUX.Padding * 2)
+        // dont limit the width
+        width = UIDevice.current.userInterfaceIdiom == .pad ? width : (self.view.frame.width - (PhotonActionSheetUX.Padding * 2))
         let height = actionSheetHeight()
         if self.modalPresentationStyle == .popover {
             self.preferredContentSize = CGSize(width: width, height: height)
@@ -140,6 +142,8 @@ class PhotonActionSheet: UIViewController, UITableViewDelegate, UITableViewDataS
             let h = min(height, view.bounds.height * 0.8)
             make.height.equalTo(h).priority(10)
         }
+        
+        self.tableView.setContentOffset(CGPoint(x: 0, y: CGFloat.greatestFiniteMagnitude), animated: false)
     }
 
     private func applyBackgroundBlur() {
