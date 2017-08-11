@@ -54,7 +54,7 @@ class TabsButton: UIControl {
     override var isHighlighted: Bool {
         didSet {
             if isHighlighted {
-                borderColor = theme.highlightBorderColor!
+               // borderColor = theme.highlightBorderColor!
                 titleBackgroundColor = theme.highlightButtonColor
                 textColor = theme.highlightTextColor
             } else {

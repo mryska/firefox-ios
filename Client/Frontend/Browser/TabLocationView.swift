@@ -140,6 +140,7 @@ class TabLocationView: UIView {
         readerModeButton.addTarget(self, action: #selector(TabLocationView.SELtapReaderModeButton), for: .touchUpInside)
         readerModeButton.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(TabLocationView.SELlongPressReaderModeButton(_:))))
         readerModeButton.isAccessibilityElement = true
+        readerModeButton.imageView?.contentMode = UIViewContentMode.scaleAspectFit
         readerModeButton.accessibilityLabel = NSLocalizedString("Reader View", comment: "Accessibility label for the Reader View button")
         readerModeButton.accessibilityCustomActions = [UIAccessibilityCustomAction(name: NSLocalizedString("Add to Reading List", comment: "Accessibility label for action adding current page to reading list."), target: self, selector: #selector(TabLocationView.SELreaderModeCustomAction))]
         return readerModeButton
@@ -162,7 +163,8 @@ class TabLocationView: UIView {
         }
 
         readerModeButton.snp.makeConstraints { make in
-            make.trailing.centerY.equalTo(self)
+            make.centerY.equalTo(self)
+            make.trailing.equalTo(self).offset(-9)
             make.size.equalTo(24)
         }
     }
@@ -279,12 +281,21 @@ extension TabLocationView: Themeable {
 private class ReaderModeButton: UIButton {
     override init(frame: CGRect) {
         super.init(frame: frame)
-        setImage(UIImage(named: "reader.png"), for: UIControlState())
-        setImage(UIImage(named: "reader_active.png"), for: UIControlState.selected)
+        setImage(UIImage.templateImageNamed("reader"), for: UIControlState())
     }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    override var isSelected: Bool {
+        didSet {
+            if isSelected {
+                self.tintColor = UIColor(rgb: 0x00A2FE)
+            } else {
+                self.tintColor = UIColor.black
+            }
+        }
     }
     
     var _readerModeState: ReaderModeState = ReaderModeState.unavailable
