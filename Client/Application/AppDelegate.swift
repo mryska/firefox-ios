@@ -876,6 +876,11 @@ extension AppDelegate {
         handler.handle(userInfo: userInfo).upon { res in
             if let message = res.successValue {
                 switch message {
+                case .accountVerified:
+                    handler.postVerification().upon { _ in 
+                        completionHandler(.newData)
+                    }
+                    return
                 case .thisDeviceDisconnected:
                     FxALoginHelper.sharedInstance.applicationDidDisconnect(application)
                 default:

@@ -109,6 +109,10 @@ extension FxAPushMessageHandler {
         // leaving this as unimplemented.
         return unimplemented(.accountVerified)
     }
+
+    func postVerification() -> Success {
+        return profile.syncManager?.syncEverything(why: .push) ?? succeed()
+    }
 }
 
 /// An extension to handle each of the messages.
