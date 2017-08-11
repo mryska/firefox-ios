@@ -86,32 +86,6 @@ public struct AppConstants {
     public static let MOZ_NIGHT_MODE: Bool = {
         return true
     }()
-    
-    ///  Enables/disables the top tabs for iPad
-    public static let MOZ_TOP_TABS: Bool = {
-        #if MOZ_CHANNEL_RELEASE
-            return false
-        #elseif MOZ_CHANNEL_BETA
-            return false
-        #elseif MOZ_CHANNEL_FENNEC
-            return true
-        #else
-            return true
-        #endif
-    }()
-
-    /// Toggles the ability to reorder tabs in the tab tray
-    public static let MOZ_REORDER_TAB_TRAY: Bool = {
-        #if MOZ_CHANNEL_RELEASE
-            return false
-        #elseif MOZ_CHANNEL_BETA
-            return false
-        #elseif MOZ_CHANNEL_FENNEC
-            return true
-        #else
-            return true
-        #endif
-    }()
 
     /// Enables the injection of the experimental page-metadata-parser into the WKWebView for
     /// extracting metadata content from web pages

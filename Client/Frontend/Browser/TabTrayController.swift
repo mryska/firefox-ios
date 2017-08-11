@@ -27,12 +27,7 @@ struct TabTrayControllerUX {
     static let CompactNumberOfColumnsThin = 2
 
     static let MenuFixedWidth: CGFloat = 320
-    
-    static let RearrangeWobblePeriod: TimeInterval = 0.1
-    static let RearrangeTransitionDuration: TimeInterval = 0.2
-    static let RearrangeWobbleAngle: CGFloat = 0.02
-    static let RearrangeDragScale: CGFloat = 1.1
-    static let RearrangeDragAlpha: CGFloat = 0.9
+
 
     // Moved from UIConstants temporarily until animation code is merged
     static var StatusBarHeight: CGFloat {
@@ -78,23 +73,6 @@ class TabCell: UICollectionViewCell {
 
     var title: UIVisualEffectView!
     var animator: SwipeAnimator!
-
-    var isBeingArranged: Bool = false {
-        didSet {
-            if isBeingArranged {
-                self.contentView.transform = CGAffineTransform(rotationAngle: TabTrayControllerUX.RearrangeWobbleAngle)
-                UIView.animate(withDuration: TabTrayControllerUX.RearrangeWobblePeriod, delay: 0, options: [.allowUserInteraction, .repeat, .autoreverse], animations: {
-                    self.contentView.transform = CGAffineTransform(rotationAngle: -TabTrayControllerUX.RearrangeWobbleAngle)
-                }, completion: nil)
-            } else {
-                if oldValue {
-                    UIView.animate(withDuration: TabTrayControllerUX.RearrangeTransitionDuration, delay: 0, options: [.allowUserInteraction, .beginFromCurrentState], animations: {
-                        self.contentView.transform = CGAffineTransform.identity
-                    }, completion: nil)
-                }
-            }
-        }
-    }
 
     weak var delegate: TabCellDelegate?
 
@@ -365,10 +343,6 @@ class TabTrayController: UIViewController {
         collectionView.register(TabCell.self, forCellWithReuseIdentifier: TabCell.Identifier)
         collectionView.backgroundColor = TabTrayControllerUX.BackgroundColor
 
-        if AppConstants.MOZ_REORDER_TAB_TRAY {
-            collectionView.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(didLongPressTab)))
-        }
-
         view.addSubview(collectionView)
         view.addSubview(toolbar)
 
@@ -422,18 +396,13 @@ class TabTrayController: UIViewController {
 
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
-
-        if AppConstants.MOZ_REORDER_TAB_TRAY {
-            self.cancelExistingGestures()
-        }
-
         coordinator.animate(alongsideTransition: { _ in
             self.collectionView.collectionViewLayout.invalidateLayout()
         }, completion: nil)
     }
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
-        return UIStatusBarStyle.lightContent
+        return UIStatusBarStyle.default //this will need to be fixed
     }
 
     fileprivate func makeConstraints() {
@@ -480,76 +449,6 @@ class TabTrayController: UIViewController {
         }
     }
 
-    @objc
-    fileprivate func didTapMenu() {
-        let state = mainStore.updateState(.tabTray(tabTrayState: self.tabTrayState))
-        let mvc = MenuViewController(withAppState: state, presentationStyle: .modal)
-        mvc.delegate = self
-        mvc.actionDelegate = self
-        mvc.menuTransitionDelegate = MenuPresentationAnimator()
-        mvc.modalPresentationStyle = .overCurrentContext
-        mvc.fixedWidth = TabTrayControllerUX.MenuFixedWidth
-        if AppConstants.MOZ_REORDER_TAB_TRAY {
-            self.cancelExistingGestures()
-        }
-        self.present(mvc, animated: true, completion: nil)
-    }
-
-    func didLongPressTab(_ gesture: UILongPressGestureRecognizer) {
-        switch gesture.state {
-            case .began:
-                let pressPosition = gesture.location(in: self.collectionView)
-                guard let indexPath = self.collectionView.indexPathForItem(at: pressPosition) else {
-                    break
-                }
-                self.collectionView.beginInteractiveMovementForItem(at: indexPath)
-                self.view.isUserInteractionEnabled = false
-                self.tabDataSource.isRearrangingTabs = true
-                for item in 0..<self.tabDataSource.collectionView(self.collectionView, numberOfItemsInSection: 0) {
-                    guard let cell = self.collectionView.cellForItem(at: IndexPath(item: item, section: 0)) as? TabCell else {
-                        continue
-                    }
-                    if item == indexPath.item {
-                        let cellPosition = cell.contentView.convert(cell.bounds.center, to: self.collectionView)
-                        self.draggedCell = cell
-                        self.dragOffset = CGPoint(x: pressPosition.x - cellPosition.x, y: pressPosition.y - cellPosition.y)
-                        UIView.animate(withDuration: TabTrayControllerUX.RearrangeTransitionDuration, delay: 0, options: [.allowUserInteraction, .beginFromCurrentState], animations: {
-                            cell.contentView.transform = CGAffineTransform(scaleX: TabTrayControllerUX.RearrangeDragScale, y: TabTrayControllerUX.RearrangeDragScale)
-                            cell.contentView.alpha = TabTrayControllerUX.RearrangeDragAlpha
-                        }, completion: nil)
-                        continue
-                    }
-                    cell.isBeingArranged = true
-                }
-                break
-            case .changed:
-                if let view = gesture.view, let draggedCell = self.draggedCell {
-                    var dragPosition = gesture.location(in: view)
-                    let offsetPosition = CGPoint(x: dragPosition.x + draggedCell.frame.center.x * (1 - TabTrayControllerUX.RearrangeDragScale), y: dragPosition.y + draggedCell.frame.center.y * (1 - TabTrayControllerUX.RearrangeDragScale))
-                    dragPosition = CGPoint(x: offsetPosition.x - self.dragOffset.x, y: offsetPosition.y - self.dragOffset.y)
-                    collectionView.updateInteractiveMovementTargetPosition(dragPosition)
-                }
-            case .ended, .cancelled:
-                for item in 0..<self.tabDataSource.collectionView(self.collectionView, numberOfItemsInSection: 0) {
-                    guard let cell = self.collectionView.cellForItem(at: IndexPath(item: item, section: 0)) as? TabCell else {
-                        continue
-                    }
-                    if !cell.isBeingArranged {
-                        UIView.animate(withDuration: TabTrayControllerUX.RearrangeTransitionDuration, delay: 0, options: [.allowUserInteraction, .beginFromCurrentState], animations: {
-                            cell.contentView.transform = CGAffineTransform.identity
-                            cell.contentView.alpha = 1
-                        }, completion: nil)
-                        continue
-                    }
-                    cell.isBeingArranged = false
-                }
-                self.tabDataSource.isRearrangingTabs = false
-                self.view.isUserInteractionEnabled = true
-                gesture.state == .ended ? self.collectionView.endInteractiveMovement() : self.collectionView.cancelInteractiveMovement()
-            default:
-                break
-        }
-    }
 
     func SELdidTogglePrivateMode() {
         let scaleDownTransform = CGAffineTransform(scaleX: 0.9, y: 0.9)
@@ -808,6 +707,16 @@ extension TabTrayController: SwipeAnimatorDelegate {
     }
 }
 
+extension TabTrayController: PhotonActionSheetProtocol {
+    func didTapMenu() {
+        let closeAllTabs = PhotonActionSheetItem(title: "Close All Tabs", iconString: "") { _ in
+            self.closeTabsForCurrentTray()
+        }
+        self.presentSheetWith(actions: [[closeAllTabs]], on: self, from: self.view)
+    }
+
+}
+
 extension TabTrayController: TabCellDelegate {
     func tabCellDidClose(_ cell: TabCell) {
         let indexPath = collectionView.indexPath(for: cell)!
@@ -827,7 +736,6 @@ fileprivate class TabManagerDataSource: NSObject, UICollectionViewDataSource {
     unowned var cellDelegate: TabCellDelegate & SwipeAnimatorDelegate
     fileprivate var tabs: [Tab]
     fileprivate var tabManager: TabManager
-    var isRearrangingTabs: Bool = false
 
     init(tabs: [Tab], cellDelegate: TabCellDelegate & SwipeAnimatorDelegate, tabManager: TabManager) {
         self.cellDelegate = cellDelegate
@@ -877,11 +785,6 @@ fileprivate class TabManagerDataSource: NSObject, UICollectionViewDataSource {
         } else {
             tabCell.accessibilityLabel = tab.url?.aboutComponent ?? "" // If there is no title we are most likely on a home panel.
         }
-
-        if AppConstants.MOZ_REORDER_TAB_TRAY {
-            tabCell.isBeingArranged = self.isRearrangingTabs
-        }
-
         tabCell.isAccessibilityElement = true
         tabCell.accessibilityHint = NSLocalizedString("Swipe right or left with three fingers to close the tab.", comment: "Accessibility hint for tab tray's displayed tab.")
 
@@ -1131,62 +1034,6 @@ extension TabTrayController: UIAdaptivePresentationControllerDelegate, UIPopover
     // not as a full-screen modal, which is the default on compact device classes.
     func adaptivePresentationStyle(for controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle {
         return UIModalPresentationStyle.none
-    }
-}
-
-extension TabTrayController: MenuViewControllerDelegate {
-    func menuViewControllerDidDismiss(_ menuViewController: MenuViewController) { }
-
-    func shouldCloseMenu(_ menuViewController: MenuViewController, forRotationToNewSize size: CGSize, forTraitCollection traitCollection: UITraitCollection) -> Bool {
-        return false
-    }
-}
-
-extension TabTrayController: MenuActionDelegate {
-    func performMenuAction(_ action: MenuAction, withAppState appState: AppState) {
-        if let menuAction = AppMenuAction(rawValue: action.action) {
-            switch menuAction {
-            case .openNewNormalTab:
-                DispatchQueue.main.async {
-                    if self.privateMode {
-                        self.SELdidTogglePrivateMode()
-                    }
-                    self.openNewTab()
-                }
-            case .openNewPrivateTab:
-                DispatchQueue.main.async {
-                    if !self.privateMode {
-                        self.SELdidTogglePrivateMode()
-                    }
-                    self.openNewTab()
-                }
-            case .openSettings:
-                DispatchQueue.main.async {
-                    self.SELdidClickSettingsItem()
-                }
-            case .closeAllTabs:
-                DispatchQueue.main.async {
-                    self.closeTabsForCurrentTray()
-                }
-            case .openTopSites:
-                DispatchQueue.main.async {
-                    self.openNewTab(PrivilegedRequest(url: HomePanelType.topSites.localhostURL) as URLRequest)
-                }
-            case .openBookmarks:
-                DispatchQueue.main.async {
-                    self.openNewTab(PrivilegedRequest(url: HomePanelType.bookmarks.localhostURL) as URLRequest)
-                }
-            case .openHistory:
-                DispatchQueue.main.async {
-                    self.openNewTab(PrivilegedRequest(url: HomePanelType.history.localhostURL) as URLRequest)
-                }
-            case .openReadingList:
-                DispatchQueue.main.async {
-                    self.openNewTab(PrivilegedRequest(url: HomePanelType.readingList.localhostURL) as URLRequest)
-                }
-            default: break
-            }
-        }
     }
 }
 

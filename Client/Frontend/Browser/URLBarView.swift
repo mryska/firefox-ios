@@ -741,7 +741,7 @@ class ToolbarTextField: AutocompleteTextField {
         themes[Theme.PrivateMode] = theme
 
         theme = Theme()
-        theme.backgroundColor = UIColor.white
+        theme.backgroundColor = UIColor(rgb: 0xD7D7DB)
         theme.textColor = UIColor.black
         theme.highlightColor = AutocompleteTextFieldUX.HighlightColor
         themes[Theme.NormalMode] = theme
@@ -822,7 +822,7 @@ extension ToolbarTextField: Themeable {
             return
         }
 
-//        backgroundColor = .clear
+        backgroundColor = theme.backgroundColor
         textColor = theme.textColor
         clearButtonTintColor = theme.buttonTintColor
         highlightColor = theme.highlightColor!
