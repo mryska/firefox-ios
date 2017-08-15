@@ -47,7 +47,7 @@ class BrowserViewController: UIViewController {
     var readerModeBar: ReaderModeBarView?
     var readerModeCache: ReaderModeCache
     let webViewContainerToolbar = UIView()
-    fileprivate var statusBarOverlay: UIView!
+    var statusBarOverlay: UIView!
     fileprivate(set) var toolbar: TabToolbar?
     fileprivate var searchController: SearchViewController?
     fileprivate var screenshotHelper: ScreenshotHelper!
@@ -1751,11 +1751,11 @@ extension BrowserViewController: TabToolbarDelegate, PhotonActionSheetProtocol {
 
             let homePanelActions = self.getHomePanelActions(openURL: { (url) in
                 self.openURLInNewTab(url, isPrivate: false, isPrivileged: true)
-            })
+            }, vcDelegate: self)
             let tabActions = self.getTabMenuActions(openURL: { (url, isPrivate) in
                 self.openURLInNewTab(url, isPrivate: isPrivate, isPrivileged: true)
             })
-            let systemActions = self.getOtherPanelActions(vcDelegate: self)
+            let systemActions = self.getOtherPanelActions()
             actions.append(systemActions)
             actions.append(homePanelActions)
             actions.append(tabActions)

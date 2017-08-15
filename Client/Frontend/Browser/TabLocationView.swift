@@ -115,7 +115,7 @@ class TabLocationView: UIView {
 
         // Prevent the field from compressing the toolbar buttons on the 4S in landscape.
         urlTextField.setContentCompressionResistancePriority(250, for: UILayoutConstraintAxis.horizontal)
-
+        urlTextField.textColor = UIColor(rgb: 0x27)
         urlTextField.attributedPlaceholder = self.placeholder
         urlTextField.accessibilityIdentifier = "url"
         urlTextField.accessibilityActionsSource = self
@@ -293,7 +293,7 @@ private class ReaderModeButton: UIButton {
             if isSelected {
                 self.tintColor = UIColor(rgb: 0x00A2FE)
             } else {
-                self.tintColor = UIColor.black
+                self.tintColor = UIColor(rgb: 0x272727)
             }
         }
     }

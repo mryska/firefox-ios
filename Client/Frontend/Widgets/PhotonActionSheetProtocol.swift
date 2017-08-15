@@ -32,7 +32,26 @@ extension PhotonActionSheetProtocol {
 
     //Returns a list of actions which is used to build a menu
     //parameter OpenURL is a clousre that can open a given URL in some view controller. It is up to the class using the menu to know how to open the url
-    func getHomePanelActions(openURL: @escaping (URL) -> Void) -> [PhotonActionSheetItem] {
+    func getHomePanelActions(openURL: @escaping (URL) -> Void, vcDelegate: PageOptionsVC) -> [PhotonActionSheetItem] {
+        let openQR = PhotonActionSheetItem(title: "QR Scanner", iconString: "menu-ScanQRCode") { action in
+            let qrCodeViewController = QRCodeViewController()
+            qrCodeViewController.qrCodeDelegate = vcDelegate
+            let controller = UINavigationController(rootViewController: qrCodeViewController)
+            vcDelegate.present(controller, animated: true, completion: nil)
+        }
+        
+        let openSettings = PhotonActionSheetItem(title: "Settings", iconString: "menu-Settings") { action in
+            let settingsTableViewController = AppSettingsTableViewController()
+            settingsTableViewController.profile = self.profile
+            settingsTableViewController.tabManager = self.tabManager
+            settingsTableViewController.settingsDelegate = vcDelegate
+            
+            let controller = SettingsNavigationController(rootViewController: settingsTableViewController)
+            controller.popoverDelegate = vcDelegate
+            controller.modalPresentationStyle = UIModalPresentationStyle.formSheet
+            vcDelegate.present(controller, animated: true, completion: nil)
+        }
+        
         let openTopSites = PhotonActionSheetItem(title: Strings.AppMenuTopSitesTitleString, iconString: "menu-panel-TopSites") { action in
             openURL(HomePanelType.topSites.localhostURL)
         }
@@ -49,7 +68,7 @@ extension PhotonActionSheetProtocol {
             openURL(HomePanelType.readingList.localhostURL)
         }
 
-        return [openTopSites, openBookmarks, openHistory, openReadingList]
+        return [openQR, openSettings, openTopSites, openBookmarks, openHistory, openReadingList]
     }
 
     /*
@@ -60,37 +79,23 @@ extension PhotonActionSheetProtocol {
 
     typealias PageOptionsVC = QRCodeViewControllerDelegate & SettingsDelegate & PresentingModalViewControllerDelegate & UIViewController
 
-    func getOtherPanelActions(vcDelegate: PageOptionsVC) -> [PhotonActionSheetItem] {
-        let openQR = PhotonActionSheetItem(title: "QR Scanner", iconString: "menu-ScanQRCode") { action in
-            let qrCodeViewController = QRCodeViewController()
-            qrCodeViewController.qrCodeDelegate = vcDelegate
-            let controller = UINavigationController(rootViewController: qrCodeViewController)
-            vcDelegate.present(controller, animated: true, completion: nil)
+    func getOtherPanelActions() -> [PhotonActionSheetItem] {
+        let adBlockText = NoImageModeHelper.isActivated(profile.prefs) ? "Tracking Protection: On" : "Tracking Protection: Off"
+        let adBlock = PhotonActionSheetItem(title: adBlockText, iconString: "menu-TrackingProtection") { action in
+            NoImageModeHelper.toggle(profile: self.profile, tabManager: self.tabManager)
         }
-
-        let openSettings = PhotonActionSheetItem(title: "Settings", iconString: "menu-Settings") { action in
-            let settingsTableViewController = AppSettingsTableViewController()
-            settingsTableViewController.profile = self.profile
-            settingsTableViewController.tabManager = self.tabManager
-            settingsTableViewController.settingsDelegate = vcDelegate
-
-            let controller = SettingsNavigationController(rootViewController: settingsTableViewController)
-            controller.popoverDelegate = vcDelegate
-            controller.modalPresentationStyle = UIModalPresentationStyle.formSheet
-            vcDelegate.present(controller, animated: true, completion: nil)
-        }
-
-        let noImageText = NoImageModeHelper.isActivated(profile.prefs) ? "Hide Images" : "Show Images"
+        
+        let noImageText = NoImageModeHelper.isActivated(profile.prefs) ? "Hide Images: On" : "Hide Images: Off"
         let noImageMode = PhotonActionSheetItem(title: noImageText, iconString: "menu-NoImageMode") { action in
             NoImageModeHelper.toggle(profile: self.profile, tabManager: self.tabManager)
         }
 
-        let nightModeText = NightModeHelper.isActivated(profile.prefs) ? "Turn off Night Mode" : "Turn on Night Mode"
+        let nightModeText = NightModeHelper.isActivated(profile.prefs) ? "Night Mode: On" : "Night Mode: Off"
         let nightMode = PhotonActionSheetItem(title: nightModeText, iconString: "menu-NightMode") { action in
             NightModeHelper.toggle(self.profile.prefs, tabManager: self.tabManager)
         }
 
-        return [openSettings, openQR, noImageMode, nightMode]
+        return [noImageMode, adBlock, nightMode]
     }
 
     func getTabActions(tab: Tab, buttonView: UIView, presentShareMenu: @escaping (URL, Tab, UIView, UIPopoverArrowDirection) -> Void) -> Array<[PhotonActionSheetItem]> {
@@ -132,7 +137,7 @@ extension PhotonActionSheetProtocol {
             tab.isBookmarked = true
         }
 
-        let removeBookmark = PhotonActionSheetItem(title: Strings.AppMenuRemoveBookmarkTitleString, iconString: "menu-Bookmark") { action in
+        let removeBookmark = PhotonActionSheetItem(title: Strings.AppMenuRemoveBookmarkTitleString, iconString: "menu-Bookmark-Remove") { action in
             //TODO: can all this logic go somewhere else?
             guard let url = tab.url else { return }
             let absoluteString = url.absoluteString
@@ -160,7 +165,7 @@ extension PhotonActionSheetProtocol {
             openURL(nil, false)
         }
 
-        let openPrivateTab = PhotonActionSheetItem(title: "Open private Tab", iconString: "menu-NewTab") { action in
+        let openPrivateTab = PhotonActionSheetItem(title: "Open private Tab", iconString: "smallPrivateMask") { action in
             openURL(nil, true)
 
         }

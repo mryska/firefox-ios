@@ -11,8 +11,8 @@ import Shared
 
 struct TabTrayControllerUX {
     static let CornerRadius = CGFloat(4.0)
-    static let BackgroundColor = UIColor.black
-    static let CellBackgroundColor = UIColor(red:0.95, green:0.95, blue:0.95, alpha:1)
+    static let BackgroundColor = UIConstants.TabTrayBG
+    static let CellBackgroundColor = UIConstants.TabTrayBG
     static let TextBoxHeight = CGFloat(32.0)
     static let FaviconSize = CGFloat(18.0)
     static let Margin = CGFloat(15)
@@ -27,15 +27,6 @@ struct TabTrayControllerUX {
     static let CompactNumberOfColumnsThin = 2
 
     static let MenuFixedWidth: CGFloat = 320
-
-
-    // Moved from UIConstants temporarily until animation code is merged
-    static var StatusBarHeight: CGFloat {
-        if UIScreen.main.traitCollection.verticalSizeClass == .compact {
-            return 0
-        }
-        return 20
-    }
 }
 
 struct LightTabCellUX {
@@ -402,7 +393,7 @@ class TabTrayController: UIViewController {
     }
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
-        return UIStatusBarStyle.default //this will need to be fixed
+        return UIStatusBarStyle.lightContent //this will need to be fixed
     }
 
     fileprivate func makeConstraints() {

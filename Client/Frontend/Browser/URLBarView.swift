@@ -19,7 +19,7 @@ struct URLBarViewUX {
     static let TextFieldCornerRadius: CGFloat = 8
     static let TextFieldBorderWidth: CGFloat = 0
     // offset from edge of tabs button
-    static let ProgressTintColor = UIColor(red:1, green:0.32, blue:0, alpha:1)
+    static let ProgressTintColor = UIColor(rgb: 0x00dcfc)
 
     static let TabsButtonRotationOffset: CGFloat = 1.5
     static let TabsButtonHeight: CGFloat = 18.0
@@ -41,8 +41,8 @@ struct URLBarViewUX {
         theme.activeBorderColor = TextFieldActiveBorderColor
         theme.highlightButtonColor = UIColor(rgb: 0x00A2FE)
         theme.tintColor = ProgressTintColor
-        theme.textColor = UIColor.black
-        theme.buttonTintColor = UIColor.darkGray
+        theme.textColor = UIColor(rgb: 0x272727)
+        theme.buttonTintColor = UIColor(rgb: 0x272727)
         themes[Theme.NormalMode] = theme
 
         return themes
@@ -150,13 +150,14 @@ class URLBarView: UIView {
         let progressBar = UIProgressView()
         progressBar.progressTintColor = URLBarViewUX.ProgressTintColor
         progressBar.alpha = 0
+        progressBar.trackTintColor = .clear
         progressBar.isHidden = true
         return progressBar
     }()
 
     fileprivate lazy var cancelButton: UIButton = {
         let cancelButton = InsetButton()
-        cancelButton.setTitleColor(UIColor.black, for: UIControlState())
+        cancelButton.setTitleColor(UIColor(rgb: 0x272727), for: UIControlState())
         let cancelTitle = NSLocalizedString("Cancel", comment: "Label for Cancel button")
         cancelButton.setTitle(cancelTitle, for: UIControlState())
         cancelButton.titleLabel?.font = UIConstants.DefaultChromeFont
@@ -214,7 +215,7 @@ class URLBarView: UIView {
     }
 
     fileprivate func commonInit() {
-        backgroundColor = UIColor.clear
+        backgroundColor = UIConstants.AppBackgroundColor
         addSubview(scrollToTopButton)
         line.backgroundColor = UIColor(rgb: 0xD4D4D5)
         
@@ -253,7 +254,7 @@ class URLBarView: UIView {
         }
 
         progressBar.snp.makeConstraints { make in
-            make.top.equalTo(self.snp.bottom)
+            make.top.equalTo(self.snp.bottom).offset(-1.5)
             make.left.right.equalTo(self)
         }
 
@@ -371,7 +372,8 @@ class URLBarView: UIView {
         locationContainer.addSubview(locationTextField)
 
         locationTextField.snp.makeConstraints { make in
-            make.edges.equalTo(self.locationView.urlTextField)
+            make.right.top.bottom.equalTo(self.locationView.urlTextField)
+            make.left.equalTo(self.locationView)
         }
 
         locationTextField.applyTheme(currentTheme)
@@ -742,7 +744,7 @@ class ToolbarTextField: AutocompleteTextField {
 
         theme = Theme()
         theme.backgroundColor = UIColor(rgb: 0xD7D7DB)
-        theme.textColor = UIColor.black
+        theme.textColor = UIColor(rgb: 0x272727)
         theme.highlightColor = AutocompleteTextFieldUX.HighlightColor
         themes[Theme.NormalMode] = theme
 

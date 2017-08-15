@@ -10,12 +10,12 @@ import XCGLogger
 private let log = Logger.browserLogger
 
 struct TabsButtonUX {
-    static let TitleColor: UIColor = UIColor.black
+    static let TitleColor: UIColor = UIColor(rgb: 0x272727)
     static let TitleBackgroundColor: UIColor = UIColor.white
     static let CornerRadius: CGFloat = 2
     static let TitleFont: UIFont = UIConstants.DefaultChromeSmallFontBold
-    static let BorderStrokeWidth: CGFloat = 2
-    static let BorderColor: UIColor = UIColor.black
+    static let BorderStrokeWidth: CGFloat = 3
+    static let BorderColor: UIColor = UIColor.darkGray
     static let TitleInsets = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
 
     static let Themes: [String: Theme] = {
@@ -33,11 +33,11 @@ struct TabsButtonUX {
         themes[Theme.PrivateMode] = theme
 
         theme = Theme()
-        theme.borderColor = BorderColor
+        theme.borderColor = UIColor(rgb: 0x272727)
         theme.borderWidth = BorderStrokeWidth
         theme.font = TitleFont
         theme.backgroundColor = TitleBackgroundColor
-        theme.textColor = TitleColor
+        theme.textColor = UIColor(rgb: 0x272727)
         theme.insets = TitleInsets
         theme.highlightButtonColor = TabsButtonUX.TitleColor
         theme.highlightTextColor = TabsButtonUX.TitleBackgroundColor

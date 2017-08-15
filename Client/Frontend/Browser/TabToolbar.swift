@@ -225,7 +225,7 @@ class TabToolbar: Toolbar, TabToolbarProtocol {
         themes[Theme.PrivateMode] = theme
 
         theme = Theme()
-        theme.buttonTintColor = UIColor.darkGray
+        theme.buttonTintColor = UIColor(rgb: 0x272727)
         theme.highlightButtonColor = UIColor(rgb: 0x00A2FE)
         themes[Theme.NormalMode] = theme
 

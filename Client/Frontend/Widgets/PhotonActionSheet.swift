@@ -9,9 +9,9 @@ import Shared
 
 private struct PhotonActionSheetUX {
     static let MaxWidth: CGFloat = 375
-    static let Padding: CGFloat = 14
+    static let Padding: CGFloat = 10
     static let HeaderHeight: CGFloat = 80
-    static let RowHeight: CGFloat = 56
+    static let RowHeight: CGFloat = 44
     static let LabelColor = UIAccessibilityDarkerSystemColorsEnabled() ? UIColor.black : UIColor(rgb: 0x353535)
     static let DescriptionLabelColor = UIColor(colorString: "919191")
     static let PlaceholderImage = UIImage(named: "defaultTopSiteIcon")
@@ -19,7 +19,7 @@ private struct PhotonActionSheetUX {
     static let BorderWidth: CGFloat = 0.5
     static let BorderColor = UIColor(white: 0, alpha: 0.1)
     static let SiteImageViewSize = 52
-    static let IconSize = CGSize(width: 32, height: 32)
+    static let IconSize = CGSize(width: 24, height: 24)
     static let HeaderName  = "PhotonActionSheetHeaderView"
     static let CellName = "PhotonActionSheetCell"
 }
@@ -28,6 +28,7 @@ public struct PhotonActionSheetItem {
     public fileprivate(set) var title: String
     public fileprivate(set) var iconString: String
     public fileprivate(set) var handler: ((PhotonActionSheetItem) -> Void)?
+//    public fileprivate(set) var tintColor: UIColor?
 }
 
 private enum PresentationStyle {
@@ -44,7 +45,7 @@ class PhotonActionSheet: UIViewController, UITableViewDelegate, UITableViewDataS
         return self.style == .bottom && self.modalPresentationStyle != .popover
     }()
     private var tableView = UITableView()
-    private var tintColor = UIColor(rgb: 0x373736)
+    private var tintColor = UIColor(rgb: 0x272727)
 
     lazy var tapRecognizer: UITapGestureRecognizer = {
         let tapRecognizer = UITapGestureRecognizer()
@@ -59,7 +60,7 @@ class PhotonActionSheet: UIViewController, UITableViewDelegate, UITableViewDataS
         let button = UIButton()
         button.setTitle("Cancel", for: .normal)
         button.backgroundColor = .white
-        button.setTitleColor(.black, for: .normal)
+        button.setTitleColor(UIColor(rgb: 0x00A2FE), for: .normal)
         button.layer.cornerRadius = 10
         button.addTarget(self, action: #selector(PhotonActionSheet.dismiss(_:)), for:.touchUpInside)
         return button
@@ -101,9 +102,11 @@ class PhotonActionSheet: UIViewController, UITableViewDelegate, UITableViewDataS
         tableView.keyboardDismissMode = UIScrollViewKeyboardDismissMode.onDrag
         tableView.register(PhotonActionSheetCell.self, forCellReuseIdentifier: PhotonActionSheetUX.CellName)
         tableView.register(PhotonActionSheetHeaderView.self, forHeaderFooterViewReuseIdentifier: PhotonActionSheetUX.HeaderName)
+        tableView.register(PhotonActionSheetSeparator.self, forHeaderFooterViewReuseIdentifier: "SeparatorSectionHeader")
         tableView.backgroundColor = UIColor.lightGray
         tableView.alpha = 0.95
         tableView.isScrollEnabled = true
+        tableView.showsVerticalScrollIndicator = false
         tableView.bounces = false
         tableView.layer.cornerRadius = 10
         tableView.separatorStyle = .none
@@ -123,10 +126,11 @@ class PhotonActionSheet: UIViewController, UITableViewDelegate, UITableViewDataS
             cancelButton.snp.makeConstraints { make in
                 make.centerX.equalTo(self.view.snp.centerX)
                 make.width.equalTo(width)
-                make.height.equalTo(PhotonActionSheetUX.RowHeight)
+                make.height.equalTo(56)
                 make.bottom.equalTo(self.view.snp.bottom).offset(-10)
             }
         }
+        self.tableView.setContentOffset(CGPoint(x: 0, y: CGFloat.greatestFiniteMagnitude), animated: false)
 
         tableView.snp.makeConstraints { make in
             make.centerX.equalTo(self.view.snp.centerX)
@@ -143,7 +147,6 @@ class PhotonActionSheet: UIViewController, UITableViewDelegate, UITableViewDataS
             make.height.equalTo(h).priority(10)
         }
         
-        self.tableView.setContentOffset(CGPoint(x: 0, y: CGFloat.greatestFiniteMagnitude), animated: false)
     }
 
     private func applyBackgroundBlur() {
@@ -161,8 +164,9 @@ class PhotonActionSheet: UIViewController, UITableViewDelegate, UITableViewDataS
 
     fileprivate func actionSheetHeight() -> CGFloat {
         let count = actions.reduce(0) { $1.count + $0 }
-        let headerHeight = style == .centered ? PhotonActionSheetUX.HeaderHeight : CGFloat(0)
-        return headerHeight + CGFloat(count) * PhotonActionSheetUX.RowHeight
+        let headerHeight = (style == .centered) ? PhotonActionSheetUX.HeaderHeight : CGFloat(0)
+        let separatorHeight = actions.count > 1 ? (actions.count - 1) * 13 : 0
+        return CGFloat(separatorHeight) + headerHeight + CGFloat(count) * PhotonActionSheetUX.RowHeight
     }
 
     func dismiss(_ gestureRecognizer: UIGestureRecognizer?) {
@@ -221,7 +225,7 @@ class PhotonActionSheet: UIViewController, UITableViewDelegate, UITableViewDataS
     }
 
     func tableView(_ tableView: UITableView, hasFullWidthSeparatorForRowAtIndexPath indexPath: IndexPath) -> Bool {
-        return true
+        return false
     }
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -230,7 +234,7 @@ class PhotonActionSheet: UIViewController, UITableViewDelegate, UITableViewDataS
 
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         if section > 0 { //TODO: use enum here
-            return 1
+            return 13
         }
         return self.site != nil ? PhotonActionSheetUX.HeaderHeight : 0
     }
@@ -240,13 +244,16 @@ class PhotonActionSheet: UIViewController, UITableViewDelegate, UITableViewDataS
         let action = actions[indexPath.section][indexPath.row]
 
         // Only show separators when we have one section or on the first item of a section (we show separators at the top of a row)
-        let hasSeparator = actions.count == 1 ? true : indexPath.row == 0 && indexPath.section != 0
+//        let hasSeparator = actions.count == 1 ? true : indexPath.row == 0 && indexPath.section != 0
         cell.tintColor = self.tintColor
-        cell.configureCell(action.title, imageString: action.iconString, hasSeparator: hasSeparator)
+        cell.configureCell(action.title, imageString: action.iconString)
         return cell
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        if section > 0 {
+            return tableView.dequeueReusableHeaderFooterView(withIdentifier: "SeparatorSectionHeader")
+        }
         guard let site = site else {
             return nil
         }
@@ -350,12 +357,35 @@ private struct PhotonActionSheetCellUX {
     static let CornerRadius: CGFloat = 3
 }
 
+private class PhotonActionSheetSeparator: UITableViewHeaderFooterView {
+
+    let separatorLineView = UIView()
+    
+    override init(reuseIdentifier: String?) {
+        super.init(reuseIdentifier: reuseIdentifier)
+//        self.backgroundColor = UIColor.lightGray
+//        self.alpha = 0.95
+        self.backgroundView = UIView()
+        self.backgroundView?.backgroundColor = .white
+        separatorLineView.backgroundColor = UIColor.lightGray
+        self.contentView.addSubview(separatorLineView)
+        separatorLineView.snp.makeConstraints { make in
+            make.leading.trailing.equalTo(self)
+            make.centerY.equalTo(self)
+            make.height.equalTo(0.5)
+        }
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
+
 private class PhotonActionSheetCell: UITableViewCell {
     lazy var titleLabel: UILabel = {
         let titleLabel = UILabel()
         titleLabel.font = DynamicFontHelper.defaultHelper.LargeSizeRegularWeightAS
         titleLabel.minimumScaleFactor = 0.8 // Scale the font if we run out of space
-     //   titleLabel.textColor = PhotonActionSheetCellUX.LabelColor
         titleLabel.textAlignment = .left
         titleLabel.numberOfLines = 1
         return titleLabel
@@ -375,9 +405,6 @@ private class PhotonActionSheetCell: UITableViewCell {
         selectedOverlay.isHidden = true
         return selectedOverlay
     }()
-
-    lazy var separatorLineView = UIView()
-
 
     override var isSelected: Bool {
         didSet {
@@ -401,27 +428,19 @@ private class PhotonActionSheetCell: UITableViewCell {
         contentView.addSubview(titleLabel)
         contentView.addSubview(statusIcon)
 
-        separatorLineView.backgroundColor = UIColor.lightGray
-        contentView.addSubview(separatorLineView)
-
-        separatorLineView.snp.makeConstraints { make in
-            make.leading.top.trailing.equalTo(self)
-            make.height.equalTo(0.25)
-        }
-
         selectedOverlay.snp.makeConstraints { make in
             make.edges.equalTo(contentView)
         }
 
         titleLabel.snp.makeConstraints { make in
-            make.leading.equalTo(contentView).offset(12)
-            make.trailing.equalTo(statusIcon.snp.leading)
+            make.leading.equalTo(statusIcon.snp.trailing).offset(16)
+            make.trailing.equalTo(contentView)
             make.centerY.equalTo(contentView)
         }
 
         statusIcon.snp.makeConstraints { make in
             make.size.equalTo(PhotonActionSheetCellUX.StatusIconSize)
-            make.trailing.equalTo(contentView).inset(12)
+            make.leading.equalTo(contentView).offset(16)
             make.centerY.equalTo(contentView)
         }
     }
@@ -430,10 +449,8 @@ private class PhotonActionSheetCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configureCell(_ label: String, imageString: String, hasSeparator: Bool) {
+    func configureCell(_ label: String, imageString: String) {
         titleLabel.text = label
-        self.separatorLineView.isHidden = !hasSeparator
-
         if let image = UIImage(named: imageString)?.withRenderingMode(.alwaysTemplate) {
             statusIcon.image = image
             statusIcon.tintColor = self.tintColor

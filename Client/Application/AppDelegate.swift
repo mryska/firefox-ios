@@ -147,13 +147,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UIViewControllerRestorati
         log.debug("Initing BVC…")
 
         browserViewController = BrowserViewController(profile: self.profile!, tabManager: self.tabManager)
+        browserViewController.edgesForExtendedLayout = []
+
         browserViewController.restorationIdentifier = NSStringFromClass(BrowserViewController.self)
         browserViewController.restorationClass = AppDelegate.self
 
         let navigationController = UINavigationController(rootViewController: browserViewController)
         navigationController.delegate = self
         navigationController.isNavigationBarHidden = true
-        navigationController.topLayoutGuide
+        navigationController.edgesForExtendedLayout = UIRectEdge(rawValue: 0)
         rootViewController = navigationController
 
         self.window!.rootViewController = rootViewController

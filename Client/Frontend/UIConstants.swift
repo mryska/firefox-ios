@@ -25,7 +25,7 @@ public struct UIConstants {
     static let BrowserUI = BrowserColor(normal: 0xf9f9fa, pbm: 0x38383D)
     static let TextColor = BrowserColor(normal: 0xffffff, pbm: 0x414146)
     static let TabTrayBG = UIColor(rgb: 0x272727)
-    static let locationBarBG = UIColor(rgb: 0xD7D7DB).withAlphaComponent(0.5)
+    static let locationBarBG = UIColor(rgb: 0xD7D7DB)
 
     //Photon UI sizes
     static let TopToolbarHeight: CGFloat = 56
@@ -58,7 +58,7 @@ public struct UIConstants {
     static let DefaultChromeSmallSize: CGFloat = 11
     static let PasscodeEntryFontSize: CGFloat = 36
     static let DefaultChromeFont: UIFont = UIFont.systemFont(ofSize: DefaultChromeSize, weight: UIFontWeightRegular)
-    static let DefaultChromeBoldFont = UIFont.boldSystemFont(ofSize: DefaultChromeSize)
+    static let DefaultChromeBoldFont = UIFont.systemFont(ofSize: DefaultChromeSize, weight: UIFontWeightHeavy)
     static let DefaultChromeSmallFontBold = UIFont.boldSystemFont(ofSize: DefaultChromeSmallSize)
     static let PasscodeEntryFont = UIFont.systemFont(ofSize: PasscodeEntryFontSize, weight: UIFontWeightBold)
 
@@ -70,7 +70,7 @@ public struct UIConstants {
     static let SeparatorColor = UIColor(rgb: 0xcccccc)
     static let HighlightBlue = UIColor(red:76/255, green:158/255, blue:255/255, alpha:1)
     static let DestructiveRed = UIColor(red: 255/255, green: 64/255, blue: 0/255, alpha: 1.0)
-    static let BorderColor = UIColor.black.withAlphaComponent(0.25)
+    static let BorderColor = UIColor.darkGray
     static let BackgroundColor = AppBackgroundColor
 
     // These colours are used on the Menu
