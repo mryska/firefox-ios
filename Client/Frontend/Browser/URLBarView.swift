@@ -28,20 +28,24 @@ struct URLBarViewUX {
     static let Themes: [String: Theme] = {
         var themes = [String: Theme]()
         var theme = Theme()
-        theme.borderColor = UIConstants.PrivateModeLocationBorderColor
+        theme.borderColor = UIColor(rgb: 0xf9f9fa)
+        theme.backgroundColor = UIColor(rgb: 0x4A4A4F)
         theme.activeBorderColor = UIConstants.PrivateModePurple
-        theme.tintColor = UIConstants.PrivateModePurple
-        theme.textColor = UIColor.white
+        theme.tintColor = UIColor(rgb: 0xf9f9fa)
+        theme.textColor = UIColor(rgb: 0xf9f9fa)
         theme.buttonTintColor = UIConstants.PrivateModeActionButtonTintColor
+        theme.disabledButtonColor = UIColor.gray
         theme.highlightButtonColor = UIColor(rgb: 0xAC39FF)
         themes[Theme.PrivateMode] = theme
 
         theme = Theme()
         theme.borderColor = TextFieldBorderColor
         theme.activeBorderColor = TextFieldActiveBorderColor
+        theme.disabledButtonColor = UIColor.lightGray
         theme.highlightButtonColor = UIColor(rgb: 0x00A2FE)
         theme.tintColor = ProgressTintColor
         theme.textColor = UIColor(rgb: 0x272727)
+        theme.backgroundColor = UIConstants.AppBackgroundColor
         theme.buttonTintColor = UIColor(rgb: 0x272727)
         themes[Theme.NormalMode] = theme
 
@@ -118,7 +122,6 @@ class URLBarView: UIView {
         locationView.translatesAutoresizingMaskIntoConstraints = false
         locationView.readerModeState = ReaderModeState.unavailable
         locationView.delegate = self
-        locationView.backgroundColor = UIConstants.locationBarBG
         return locationView
     }()
 
@@ -181,7 +184,6 @@ class URLBarView: UIView {
     var bookmarkButton: UIButton = ToolbarButton()
     var forwardButton: UIButton = ToolbarButton()
     var stopReloadButton: UIButton = ToolbarButton()
-    var homePageButton: UIButton = ToolbarButton()
 
     var backButton: UIButton = {
         let backButton = ToolbarButton()
@@ -189,7 +191,7 @@ class URLBarView: UIView {
         return backButton
     }()
 
-    lazy var actionButtons: [UIButton] = [self.shareButton, self.menuButton, self.forwardButton, self.backButton, self.stopReloadButton, self.homePageButton]
+    lazy var actionButtons: [UIButton] = [self.shareButton, self.menuButton, self.forwardButton, self.backButton, self.stopReloadButton]
 
     fileprivate var rightBarConstraint: Constraint?
     fileprivate let defaultRightOffset: CGFloat = 0
@@ -215,25 +217,11 @@ class URLBarView: UIView {
     }
 
     fileprivate func commonInit() {
-        backgroundColor = UIConstants.AppBackgroundColor
-        addSubview(scrollToTopButton)
-        line.backgroundColor = UIColor(rgb: 0xD4D4D5)
-        
-        addSubview(line)
-        addSubview(progressBar)
-        addSubview(tabsButton)
-        addSubview(cancelButton)
-
-        addSubview(shareButton)
-        addSubview(menuButton)
-        addSubview(homePageButton)
-        addSubview(forwardButton)
-        addSubview(backButton)
-        addSubview(stopReloadButton)
-
         locationContainer.addSubview(locationView)
-        addSubview(locationContainer)
-
+    
+        [scrollToTopButton, line, progressBar, tabsButton, cancelButton, shareButton].forEach { addSubview($0) }
+        [menuButton, forwardButton, backButton, stopReloadButton, locationContainer].forEach { addSubview($0) }
+        
         helper = TabToolbarHelper(toolbar: self)
         setupConstraints()
 
@@ -281,30 +269,25 @@ class URLBarView: UIView {
         forwardButton.snp.makeConstraints { make in
             make.left.equalTo(self.backButton.snp.right)
             make.centerY.equalTo(self)
-            make.size.equalTo(backButton)
+            make.size.equalTo(UIConstants.TopToolbarHeight)
         }
 
         stopReloadButton.snp.makeConstraints { make in
             make.left.equalTo(self.forwardButton.snp.right)
             make.centerY.equalTo(self)
-            make.size.equalTo(backButton)
+            make.size.equalTo(UIConstants.TopToolbarHeight)
         }
 
         shareButton.snp.makeConstraints { make in
             make.right.equalTo(self.menuButton.snp.left)
             make.centerY.equalTo(self)
-            make.size.equalTo(backButton)
-        }
-
-        homePageButton.snp.makeConstraints { make in
-            make.center.equalTo(shareButton)
-            make.size.equalTo(shareButton)
+            make.size.equalTo(UIConstants.TopToolbarHeight)
         }
 
         menuButton.snp.makeConstraints { make in
-            make.right.equalTo(self.tabsButton.snp.left).offset(0)
+            make.right.equalTo(self.tabsButton.snp.left)
             make.centerY.equalTo(self)
-            make.size.equalTo(backButton)
+            make.size.equalTo(UIConstants.TopToolbarHeight)
         }
     }
 
@@ -401,7 +384,7 @@ class URLBarView: UIView {
     func updateAlphaForSubviews(_ alpha: CGFloat) {
         self.tabsButton.alpha = alpha
         self.locationContainer.alpha = alpha
-        self.backgroundColor = URLBarViewUX.backgroundColorWithAlpha(1 - alpha)
+        self.alpha = alpha
         self.actionButtons.forEach { $0.alpha = alpha }
     }
 
@@ -476,8 +459,8 @@ class URLBarView: UIView {
         self.menuButton.isHidden = !self.toolbarIsShowing
         self.forwardButton.isHidden = !self.toolbarIsShowing
         self.backButton.isHidden = !self.toolbarIsShowing
+        self.shareButton.isHidden = !self.toolbarIsShowing
         self.stopReloadButton.isHidden = !self.toolbarIsShowing
-        self.homePageButton.isHidden = !self.toolbarIsShowing
     }
 
     func transitionToOverlay(_ didCancel: Bool = false) {
@@ -488,7 +471,6 @@ class URLBarView: UIView {
         self.forwardButton.alpha = inOverlayMode ? 0 : 1
         self.backButton.alpha = inOverlayMode ? 0 : 1
         self.stopReloadButton.alpha = inOverlayMode ? 0 : 1
-        self.homePageButton.alpha = inOverlayMode ? 0 : 1
 
         let borderColor = inOverlayMode ? locationActiveBorderColor : locationBorderColor
         locationContainer.layer.borderColor = borderColor.cgColor
@@ -522,6 +504,7 @@ class URLBarView: UIView {
         self.menuButton.isHidden = !self.toolbarIsShowing || inOverlayMode
         self.forwardButton.isHidden = !self.toolbarIsShowing || inOverlayMode
         self.backButton.isHidden = !self.toolbarIsShowing || inOverlayMode
+        self.shareButton.isHidden = !self.toolbarIsShowing || inOverlayMode
         self.stopReloadButton.isHidden = !self.toolbarIsShowing || inOverlayMode
         self.tabsButton.isHidden = self.topTabsIsShowing
     }
@@ -692,6 +675,14 @@ extension URLBarView {
             helper?.selectedButtonTintColor = value
         }
     }
+    
+    dynamic var actionButtonDisabledTintColor: UIColor? {
+        get { return helper?.disabledButtonTintColor }
+        set {
+            guard let value = newValue else { return }
+            helper?.disabledButtonTintColor = value
+        }
+    }
 }
 
 extension URLBarView: Themeable {
@@ -701,8 +692,7 @@ extension URLBarView: Themeable {
         locationTextField?.applyTheme(themeName)
 
         guard let theme = URLBarViewUX.Themes[themeName] else {
-            log.error("Unable to apply unknown theme \(themeName)")
-            return
+            fatalError("Theme not found")
         }
 
         currentTheme = themeName
@@ -712,24 +702,13 @@ extension URLBarView: Themeable {
         cancelTextColor = theme.textColor
         actionButtonTintColor = theme.buttonTintColor
         actionButtonSelectedTintColor = theme.highlightButtonColor
+        actionButtonDisabledTintColor = theme.disabledButtonColor!
+        backgroundColor = theme.backgroundColor
         tabsButton.applyTheme(themeName)
+        line.backgroundColor = UIConstants.URLBarDivider.color(isPBM: themeName == Theme.PrivateMode)
     }
 
 
-}
-
-extension URLBarView: AppStateDelegate {
-    func appDidUpdateState(_ appState: AppState) {
-        if toolbarIsShowing {
-            let showShareButton = HomePageAccessors.isButtonInMenu(appState)
-            homePageButton.isHidden = showShareButton
-            shareButton.isHidden = !showShareButton || inOverlayMode
-            homePageButton.isEnabled = HomePageAccessors.isButtonEnabled(appState)
-        } else {
-            homePageButton.isHidden = true
-            shareButton.isHidden = true
-        }
-    }
 }
 
 class ToolbarTextField: AutocompleteTextField {
@@ -820,8 +799,7 @@ class ToolbarTextField: AutocompleteTextField {
 extension ToolbarTextField: Themeable {
     func applyTheme(_ themeName: String) {
         guard let theme = ToolbarTextField.Themes[themeName] else {
-            log.error("Unable to apply unknown theme \(themeName)")
-            return
+            fatalError("Theme not found")
         }
 
         backgroundColor = theme.backgroundColor

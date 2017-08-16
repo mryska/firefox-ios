@@ -167,7 +167,8 @@ class BrowserViewController: UIViewController {
     }
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
-        return UIStatusBarStyle.default
+        let isPrivate = tabManager.selectedTab?.isPrivate ?? false
+        return isPrivate ? UIStatusBarStyle.lightContent : UIStatusBarStyle.default
     }
 
     func shouldShowFooterForTraitCollection(_ previousTraitCollection: UITraitCollection) -> Bool {
@@ -368,7 +369,6 @@ class BrowserViewController: UIViewController {
         log.debug("BVC setting up status bar…")
         // Temporary work around for covering the non-clipped web view content
         statusBarOverlay = UIView()
-        statusBarOverlay.backgroundColor = BrowserViewControllerUX.BackgroundColor
         view.addSubview(statusBarOverlay)
 
         log.debug("BVC setting up top touch area…")
@@ -387,6 +387,7 @@ class BrowserViewController: UIViewController {
         urlBarTopTabsContainer.addSubview(urlBar)
         urlBarTopTabsContainer.addSubview(topTabsContainer)
         view.addSubview(header)
+
 
         // UIAccessibilityCustomAction subclass holding an AccessibleAction instance does not work, thus unable to generate AccessibleActions and UIAccessibilityCustomActions "on-demand" and need to make them "persistent" e.g. by being stored in BVC
         pasteGoAction = AccessibleAction(name: NSLocalizedString("Paste & Go", comment: "Paste the URL into the location bar and visit"), handler: { () -> Bool in
@@ -1073,7 +1074,7 @@ class BrowserViewController: UIViewController {
     // MARK: Opening New Tabs
 
     func switchToPrivacyMode(isPrivate: Bool ) {
-        applyTheme(isPrivate ? Theme.PrivateMode : Theme.NormalMode)
+//        applyTheme(isPrivate ? Theme.PrivateMode : Theme.NormalMode)
 
         let tabTrayController = self.tabTrayController ?? TabTrayController(tabManager: tabManager, profile: profile, tabTrayDelegate: self)
         if tabTrayController.privateMode != isPrivate {
@@ -1366,8 +1367,6 @@ extension BrowserViewController: AppStateDelegate {
 
     func appDidUpdateState(_ appState: AppState) {
         menuViewController?.appState = appState
-        toolbar?.appDidUpdateState(appState)
-        urlBar?.appDidUpdateState(appState)
     }
 }
 
@@ -1811,9 +1810,6 @@ extension BrowserViewController: TabToolbarDelegate, PhotonActionSheetProtocol {
         toggleBookmarkForTabState(tab.tabState)
     }
 
-    func tabToolbarDidLongPressBookmark(_ tabToolbar: TabToolbarProtocol, button: UIButton) {
-    }
-
     func tabToolbarDidPressShare(_ tabToolbar: TabToolbarProtocol, button: UIButton) {
         if FeatureSwitches.photonMenu.isMember(profile.prefs) || true {
 
@@ -2178,12 +2174,14 @@ extension BrowserViewController: TabManagerDelegate {
 
         if let tab = selected, let webView = tab.webView {
             updateURLBarDisplayURL(tab)
+            if tab.isPrivate != previous?.isPrivate {
+                applyTheme(tab.isPrivate ? Theme.PrivateMode : Theme.NormalMode)
+            }
             if tab.isPrivate {
                 readerModeCache = MemoryReaderModeCache.sharedInstance
-                applyTheme(Theme.PrivateMode)
+                
             } else {
                 readerModeCache = DiskReaderModeCache.sharedInstance
-                applyTheme(Theme.NormalMode)
             }
             if let privateModeButton = topTabsViewController?.privateModeButton, previous != nil && previous?.isPrivate != tab.isPrivate {
                 privateModeButton.setSelected(tab.isPrivate, animated: true)
@@ -3134,21 +3132,19 @@ extension BrowserViewController: TabTrayDelegate {
 extension BrowserViewController: Themeable {
 
     func applyTheme(_ themeName: String) {
-        urlBar.applyTheme(themeName)
-        toolbar?.applyTheme(themeName)
-        readerModeBar?.applyTheme(themeName)
-
-        topTabsViewController?.applyTheme(themeName)
-
+        let ui: [Themeable?] = [urlBar, toolbar, readerModeBar, topTabsViewController]
+        ui.forEach { $0?.applyTheme(themeName) }
+        statusBarOverlay.backgroundColor = urlBar.backgroundColor
+        self.setNeedsStatusBarAppearanceUpdate()
         switch themeName {
-        case Theme.NormalMode:
-            header.blurStyle = .extraLight
-            footerBackground?.blurStyle = .extraLight
-        case Theme.PrivateMode:
-            header.blurStyle = .dark
-            footerBackground?.blurStyle = .dark
-        default:
-            log.debug("Unknown Theme \(themeName)")
+            case Theme.NormalMode:
+                header.blurStyle = .extraLight
+                footerBackground?.blurStyle = .extraLight
+            case Theme.PrivateMode:
+                header.blurStyle = .dark
+                footerBackground?.blurStyle = .dark
+            default:
+                log.debug("Unknown Theme \(themeName)")
         }
     }
 }

@@ -21,12 +21,9 @@ struct TabsButtonUX {
     static let Themes: [String: Theme] = {
         var themes = [String: Theme]()
         var theme = Theme()
-        theme.borderColor = UIConstants.BorderColor
-        theme.borderWidth = BorderStrokeWidth
-        theme.font = UIConstants.DefaultChromeBoldFont
-        theme.backgroundColor = UIConstants.AppBackgroundColor
-        theme.textColor = UIConstants.BorderColor
-        theme.insets = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+        theme.borderColor = UIConstants.AppBackgroundColor
+        theme.backgroundColor = UIColor(rgb: 0x4A4A4F)
+        theme.textColor = UIConstants.AppBackgroundColor
         theme.highlightButtonColor = UIConstants.PrivateModePurple
         theme.highlightTextColor = TabsButtonUX.TitleColor
         theme.highlightBorderColor = UIConstants.PrivateModePurple
@@ -34,11 +31,8 @@ struct TabsButtonUX {
 
         theme = Theme()
         theme.borderColor = UIColor(rgb: 0x272727)
-        theme.borderWidth = BorderStrokeWidth
-        theme.font = TitleFont
-        theme.backgroundColor = TitleBackgroundColor
+        theme.backgroundColor = UIConstants.AppBackgroundColor
         theme.textColor = UIColor(rgb: 0x272727)
-        theme.insets = TitleInsets
         theme.highlightButtonColor = TabsButtonUX.TitleColor
         theme.highlightTextColor = TabsButtonUX.TitleBackgroundColor
         theme.highlightBorderColor = TabsButtonUX.TitleBackgroundColor
@@ -54,7 +48,7 @@ class TabsButton: UIControl {
     override var isHighlighted: Bool {
         didSet {
             if isHighlighted {
-               // borderColor = theme.highlightBorderColor!
+                borderColor = theme.highlightBorderColor!
                 titleBackgroundColor = theme.highlightButtonColor
                 textColor = theme.highlightTextColor
             } else {
@@ -101,8 +95,6 @@ class TabsButton: UIControl {
         border.isUserInteractionEnabled = false
         return border
     }()
-
-    fileprivate var buttonInsets: UIEdgeInsets = TabsButtonUX.TitleInsets
     
     // Used to temporarily store the cloned button so we can respond to layout changes during animation
     fileprivate weak var clonedTabsButton: TabsButton?
@@ -129,7 +121,7 @@ class TabsButton: UIControl {
             make.edges.equalTo(insideButton)
         }
         insideButton.snp.remakeConstraints { (make) -> Void in
-            make.edges.equalTo(self).inset(insets)
+            make.edges.equalTo(self).inset(TabsButtonUX.TitleInsets)
         }
     }
 
@@ -186,7 +178,6 @@ class TabsButton: UIControl {
             }
             
             newTabsButton.frame = self.frame
-            newTabsButton.insets = insets
             
             // Instead of changing the anchorPoint of the CALayer, lets alter the rotation matrix math to be
             // a rotation around a non-origin point
@@ -235,19 +226,13 @@ class TabsButton: UIControl {
 
 extension TabsButton: Themeable {
     func applyTheme(_ themeName: String) {
-
         guard let theme = TabsButtonUX.Themes[themeName] else {
-            log.error("Unable to apply unknown theme \(themeName)")
-            return
+            fatalError("Theme not found")
         }
-
         borderColor = theme.borderColor!
-        borderWidth = theme.borderWidth!
-        titleFont = theme.font
         titleBackgroundColor = theme.backgroundColor
+        backgroundColor = theme.backgroundColor
         textColor = theme.textColor
-        insets = theme.insets!
-
         self.theme = theme
     }
 }
@@ -259,19 +244,9 @@ extension TabsButton {
         set { borderView.color = newValue }
     }
 
-    dynamic var borderWidth: CGFloat {
-        get { return borderView.strokeWidth }
-        set { borderView.strokeWidth = newValue }
-    }
-
     dynamic var textColor: UIColor? {
         get { return titleLabel.textColor }
         set { titleLabel.textColor = newValue }
-    }
-
-    dynamic var titleFont: UIFont? {
-        get { return titleLabel.font }
-        set { titleLabel.font = newValue }
     }
 
     dynamic var titleBackgroundColor: UIColor? {
@@ -279,11 +254,4 @@ extension TabsButton {
         set { labelBackground.backgroundColor = newValue }
     }
 
-    dynamic var insets: UIEdgeInsets {
-        get { return buttonInsets }
-        set {
-            buttonInsets = newValue
-            setNeedsUpdateConstraints()
-        }
-    }
 }

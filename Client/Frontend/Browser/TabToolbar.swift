@@ -18,7 +18,6 @@ protocol TabToolbarProtocol: class {
     var forwardButton: UIButton { get }
     var backButton: UIButton { get }
     var stopReloadButton: UIButton { get }
-    var homePageButton: UIButton { get }
     var actionButtons: [UIButton] { get }
 
     func updateBackStatus(_ canGoBack: Bool)
@@ -37,10 +36,7 @@ protocol TabToolbarDelegate: class {
     func tabToolbarDidLongPressReload(_ tabToolbar: TabToolbarProtocol, button: UIButton)
     func tabToolbarDidPressStop(_ tabToolbar: TabToolbarProtocol, button: UIButton)
     func tabToolbarDidPressMenu(_ tabToolbar: TabToolbarProtocol, button: UIButton)
-    func tabToolbarDidPressBookmark(_ tabToolbar: TabToolbarProtocol, button: UIButton)
-    func tabToolbarDidLongPressBookmark(_ tabToolbar: TabToolbarProtocol, button: UIButton)
     func tabToolbarDidPressShare(_ tabToolbar: TabToolbarProtocol, button: UIButton)
-    func tabToolbarDidPressHomePage(_ tabToolbar: TabToolbarProtocol, button: UIButton)
 }
 
 @objc
@@ -52,13 +48,19 @@ open class TabToolbarHelper: NSObject {
 
     var buttonTintColor = UIColor.darkGray {
         didSet {
-            setTintColor(buttonTintColor, andSelectedColor: selectedButtonTintColor, forButtons: toolbar.actionButtons)
+            setTint(color: buttonTintColor, selectedColor: selectedButtonTintColor, andDisabledColor: disabledButtonTintColor, forButtons: toolbar.actionButtons)
         }
     }
 
     var selectedButtonTintColor = UIColor.darkGray {
         didSet {
-            setTintColor(buttonTintColor, andSelectedColor: selectedButtonTintColor, forButtons: toolbar.actionButtons)
+            setTint(color: buttonTintColor, selectedColor: selectedButtonTintColor, andDisabledColor: disabledButtonTintColor, forButtons: toolbar.actionButtons)
+        }
+    }
+    
+    var disabledButtonTintColor = UIColor.lightGray {
+        didSet {
+            setTint(color: buttonTintColor, selectedColor: selectedButtonTintColor, andDisabledColor: disabledButtonTintColor, forButtons: toolbar.actionButtons)
         }
     }
 
@@ -74,9 +76,9 @@ open class TabToolbarHelper: NSObject {
         }
     }
 
-    fileprivate func setTintColor(_ color: UIColor, andSelectedColor selectedColor: UIColor, forButtons buttons: [UIButton]) {
+    fileprivate func setTint(color: UIColor,  selectedColor: UIColor, andDisabledColor disabledColor: UIColor, forButtons buttons: [UIButton]) {
         let buttons = buttons as! [ToolbarButton]
-        buttons.forEach { $0.tintColor = color; $0.selectedTintcolor = selectedColor; $0.unselectedTintColor = color }
+        buttons.forEach { $0.tintColor = color; $0.imageView?.tintColor = color; $0.selectedTintcolor = selectedColor; $0.unselectedTintColor = color; $0.disabledTintColor = disabledColor }
     }
 
     init(toolbar: TabToolbarProtocol) {
@@ -85,14 +87,12 @@ open class TabToolbarHelper: NSObject {
 
         toolbar.backButton.setImage(UIImage.templateImageNamed("nav-back"), for: .normal)
         toolbar.backButton.accessibilityLabel = NSLocalizedString("Back", comment: "Accessibility label for the Back button in the tab toolbar.")
-        //toolbar.backButton.accessibilityHint = NSLocalizedString("Double tap and hold to open history", comment: "Accessibility hint, associated to the Back button in the tab toolbar, used by assistive technology to describe the result of a double tap.")
         let longPressGestureBackButton = UILongPressGestureRecognizer(target: self, action: #selector(TabToolbarHelper.SELdidLongPressBack(_:)))
         toolbar.backButton.addGestureRecognizer(longPressGestureBackButton)
         toolbar.backButton.addTarget(self, action: #selector(TabToolbarHelper.SELdidClickBack), for: UIControlEvents.touchUpInside)
 
         toolbar.forwardButton.setImage(UIImage.templateImageNamed("nav-forward"), for: .normal)
         toolbar.forwardButton.accessibilityLabel = NSLocalizedString("Forward", comment: "Accessibility Label for the tab toolbar Forward button")
-        //toolbar.forwardButton.accessibilityHint = NSLocalizedString("Double tap and hold to open history", comment: "Accessibility hint, associated to the Back button in the tab toolbar, used by assistive technology to describe the result of a double tap.")
         let longPressGestureForwardButton = UILongPressGestureRecognizer(target: self, action: #selector(TabToolbarHelper.SELdidLongPressForward(_:)))
         toolbar.forwardButton.addGestureRecognizer(longPressGestureForwardButton)
         toolbar.forwardButton.addTarget(self, action: #selector(TabToolbarHelper.SELdidClickForward), for: UIControlEvents.touchUpInside)
@@ -107,16 +107,12 @@ open class TabToolbarHelper: NSObject {
         toolbar.shareButton.accessibilityLabel = NSLocalizedString("Share", comment: "Accessibility Label for the tab toolbar Share button")
         toolbar.shareButton.addTarget(self, action: #selector(TabToolbarHelper.SELdidClickShare), for: UIControlEvents.touchUpInside)
 
-        toolbar.homePageButton.setImage(UIImage.templateImageNamed("nav-homepage"), for: .normal)
-        toolbar.homePageButton.accessibilityLabel = NSLocalizedString("Toolbar.OpenHomePage.AccessibilityLabel", value: "Homepage", comment: "Accessibility Label for the tab toolbar Homepage button")
-        toolbar.homePageButton.addTarget(self, action: #selector(TabToolbarHelper.SELdidClickHomePage), for: UIControlEvents.touchUpInside)
-
         toolbar.menuButton.contentMode = UIViewContentMode.center
         toolbar.menuButton.setImage(UIImage.templateImageNamed("nav-menu"), for: .normal)
         toolbar.menuButton.accessibilityLabel = Strings.AppMenuButtonAccessibilityLabel
         toolbar.menuButton.addTarget(self, action: #selector(TabToolbarHelper.SELdidClickMenu), for: UIControlEvents.touchUpInside)
         toolbar.menuButton.accessibilityIdentifier = "TabToolbar.menuButton"
-        setTintColor(buttonTintColor, andSelectedColor: selectedButtonTintColor, forButtons: toolbar.actionButtons)
+        setTint(color: buttonTintColor, selectedColor: selectedButtonTintColor, andDisabledColor: disabledButtonTintColor, forButtons: toolbar.actionButtons)
     }
 
     func SELdidClickBack() {
@@ -143,16 +139,6 @@ open class TabToolbarHelper: NSObject {
         }
     }
 
-    func SELdidClickBookmark() {
-        toolbar.tabToolbarDelegate?.tabToolbarDidPressBookmark(toolbar, button: toolbar.bookmarkButton)
-    }
-
-    func SELdidLongPressBookmark(_ recognizer: UILongPressGestureRecognizer) {
-        if recognizer.state == UIGestureRecognizerState.began {
-            toolbar.tabToolbarDelegate?.tabToolbarDidLongPressBookmark(toolbar, button: toolbar.bookmarkButton)
-        }
-    }
-
     func SELdidClickMenu() {
         toolbar.tabToolbarDelegate?.tabToolbarDidPressMenu(toolbar, button: toolbar.menuButton)
     }
@@ -171,10 +157,6 @@ open class TabToolbarHelper: NSObject {
         }
     }
 
-    func SELdidClickHomePage() {
-        toolbar.tabToolbarDelegate?.tabToolbarDidPressHomePage(toolbar, button: toolbar.homePageButton)
-    }
-
     func updateReloadStatus(_ isLoading: Bool) {
         loading = isLoading
     }
@@ -183,12 +165,14 @@ open class TabToolbarHelper: NSObject {
 class ToolbarButton: UIButton {
     var selectedTintcolor: UIColor!
     var unselectedTintColor: UIColor!
+    var disabledTintColor: UIColor!
 
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.adjustsImageWhenHighlighted = false
         self.selectedTintcolor = self.tintColor
         self.unselectedTintColor = self.tintColor
+        self.disabledTintColor = UIColor.gray
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -198,6 +182,13 @@ class ToolbarButton: UIButton {
     override open var isHighlighted: Bool {
         didSet {
             self.tintColor = isHighlighted ? selectedTintcolor : unselectedTintColor
+            self.imageView?.tintColor = self.tintColor
+        }
+    }
+    
+    override open var isEnabled: Bool {
+        didSet {
+            self.tintColor = isEnabled ? unselectedTintColor : disabledTintColor
             self.imageView?.tintColor = self.tintColor
         }
     }
@@ -212,7 +203,6 @@ class TabToolbar: Toolbar, TabToolbarProtocol {
     let forwardButton: UIButton
     let backButton: UIButton
     let stopReloadButton: UIButton
-    let homePageButton: UIButton
     let actionButtons: [UIButton]
 
     var helper: TabToolbarHelper?
@@ -222,11 +212,13 @@ class TabToolbar: Toolbar, TabToolbarProtocol {
         var theme = Theme()
         theme.buttonTintColor = UIConstants.PrivateModeActionButtonTintColor
         theme.highlightButtonColor = UIColor(rgb: 0xAC39FF)
+        theme.disabledButtonColor = UIColor.gray
         themes[Theme.PrivateMode] = theme
 
         theme = Theme()
         theme.buttonTintColor = UIColor(rgb: 0x272727)
         theme.highlightButtonColor = UIColor(rgb: 0x00A2FE)
+        theme.disabledButtonColor = UIColor.lightGray
         themes[Theme.NormalMode] = theme
 
         return themes
@@ -247,8 +239,6 @@ class TabToolbar: Toolbar, TabToolbarProtocol {
         bookmarkButton.accessibilityIdentifier = "TabToolbar.bookmarkButton"
         menuButton = ToolbarButton()
         menuButton.accessibilityIdentifier = "TabToolbar.menuButton"
-        homePageButton = ToolbarButton()
-        homePageButton.accessibilityIdentifier = "TabToolbar.homePageButton"
         actionButtons = [backButton, forwardButton, stopReloadButton, shareButton, menuButton]
 
         super.init(frame: frame)
@@ -317,6 +307,13 @@ extension TabToolbar {
             helper?.selectedButtonTintColor = value
         }
     }
+    dynamic var actionButtonDisabledTintColor: UIColor? {
+        get { return helper?.selectedButtonTintColor }
+        set {
+            guard let value = newValue else { return }
+            helper?.disabledButtonTintColor = value
+        }
+    }
 }
 
 extension TabToolbar: Themeable {
@@ -325,20 +322,8 @@ extension TabToolbar: Themeable {
             log.error("Unable to apply unknown theme \(themeName)")
             return
         }
-        actionButtonTintColor = theme.buttonTintColor!
         actionButtonSelectedTintColor = theme.highlightButtonColor!
-    }
-}
-
-extension TabToolbar: AppStateDelegate {
-    func appDidUpdateState(_ state: AppState) {
-        let showHomepage = !HomePageAccessors.isButtonInMenu(state)
-    //    shareButton.removeFromSuperview()
-
-//        if showHomepage {
-//        } else {
-//            addButtons(shareButton)
-//        }
-        updateConstraints()
+        actionButtonDisabledTintColor = theme.disabledButtonColor!
+        actionButtonTintColor = theme.buttonTintColor!
     }
 }

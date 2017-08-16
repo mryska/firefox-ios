@@ -22,22 +22,23 @@ protocol TabLocationViewDelegate {
 struct TabLocationViewUX {
     static let HostFontColor = UIColor.black
     static let BaseURLFontColor = UIColor.gray
-    static let BaseURLPitch = 0.75
-    static let HostPitch = 1.0
     static let LocationContentInset = 8
 
     static let Themes: [String: Theme] = {
         var themes = [String: Theme]()
         var theme = Theme()
         theme.URLFontColor = UIColor.lightGray
-        theme.hostFontColor = UIColor.white
+        theme.textColor = UIColor(rgb: 0xf9f9fa)
+        theme.highlightButtonColor = UIConstants.PrivateModePurple
+        theme.buttonTintColor = UIColor(rgb: 0xf9f9fa)
         theme.backgroundColor = UIConstants.PrivateModeLocationBackgroundColor
         themes[Theme.PrivateMode] = theme
 
         theme = Theme()
-        theme.URLFontColor = BaseURLFontColor
-        theme.hostFontColor = HostFontColor
-        theme.backgroundColor = UIColor.white
+        theme.textColor = UIColor(rgb: 0x27)
+        theme.highlightButtonColor = UIColor(rgb: 0x00A2FE)
+        theme.buttonTintColor = UIColor(rgb: 0x272727)
+        theme.backgroundColor = UIConstants.locationBarBG
         themes[Theme.NormalMode] = theme
 
         return themes
@@ -50,10 +51,6 @@ class TabLocationView: UIView {
     var tapRecognizer: UITapGestureRecognizer!
 
     dynamic var baseURLFontColor: UIColor = TabLocationViewUX.BaseURLFontColor {
-        didSet { updateTextWithURL() }
-    }
-
-    dynamic var hostFontColor: UIColor = TabLocationViewUX.HostFontColor {
         didSet { updateTextWithURL() }
     }
 
@@ -115,7 +112,6 @@ class TabLocationView: UIView {
 
         // Prevent the field from compressing the toolbar buttons on the 4S in landscape.
         urlTextField.setContentCompressionResistancePriority(250, for: UILayoutConstraintAxis.horizontal)
-        urlTextField.textColor = UIColor(rgb: 0x27)
         urlTextField.attributedPlaceholder = self.placeholder
         urlTextField.accessibilityIdentifier = "url"
         urlTextField.accessibilityActionsSource = self
@@ -227,22 +223,10 @@ class TabLocationView: UIView {
     }
 
     fileprivate func updateTextWithURL() {
-        if let httplessURL = url?.absoluteDisplayString, let baseDomain = url?.baseDomain {
-            // Highlight the base domain of the current URL.
-            let attributedString = NSMutableAttributedString(string: httplessURL)
-            let nsRange = NSRange(location: 0, length: httplessURL.characters.count)
-//            attributedString.addAttribute(NSForegroundColorAttributeName, value: baseURLFontColor, range: nsRange)
-//            attributedString.colorSubstring(baseDomain, withColor: hostFontColor)
-//            attributedString.addAttribute(UIAccessibilitySpeechAttributePitch, value: NSNumber(value: TabLocationViewUX.BaseURLPitch), range: nsRange)
-//            attributedString.pitchSubstring(baseDomain, withPitch: TabLocationViewUX.HostPitch)
-            urlTextField.attributedText = attributedString
+        if let host = url?.host, AppConstants.MOZ_PUNYCODE {
+            urlTextField.text = url?.absoluteString.replacingOccurrences(of: host, with: host.asciiHostToUTF8())
         } else {
-            // If we're unable to highlight the domain, just use the URL as is.
-            if let host = url?.host, AppConstants.MOZ_PUNYCODE {
-                urlTextField.text = url?.absoluteString.replacingOccurrences(of: host, with: host.asciiHostToUTF8())
-            } else {
-                urlTextField.text = url?.absoluteString
-            }
+            urlTextField.text = url?.absoluteString
         }
     }
 }
@@ -273,12 +257,16 @@ extension TabLocationView: Themeable {
             log.error("Unable to apply unknown theme \(themeName)")
             return
         }
-        baseURLFontColor = theme.URLFontColor!
-        hostFontColor = theme.hostFontColor!
+        self.backgroundColor = theme.backgroundColor
+        self.urlTextField.textColor = theme.textColor
+        self.readerModeButton.selectedTintColor = theme.highlightButtonColor
+        self.readerModeButton.unselectedTintColor = theme.buttonTintColor
     }
 }
 
 private class ReaderModeButton: UIButton {
+    var selectedTintColor: UIColor?
+    var unselectedTintColor: UIColor?
     override init(frame: CGRect) {
         super.init(frame: frame)
         setImage(UIImage.templateImageNamed("reader"), for: UIControlState())
@@ -290,11 +278,7 @@ private class ReaderModeButton: UIButton {
     
     override var isSelected: Bool {
         didSet {
-            if isSelected {
-                self.tintColor = UIColor(rgb: 0x00A2FE)
-            } else {
-                self.tintColor = UIColor(rgb: 0x272727)
-            }
+            self.tintColor = isSelected ? selectedTintColor : unselectedTintColor
         }
     }
     

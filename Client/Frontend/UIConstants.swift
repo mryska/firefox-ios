@@ -24,6 +24,7 @@ public struct UIConstants {
     // Photon Colors. Remove old colors once we've completly transitioned
     static let BrowserUI = BrowserColor(normal: 0xf9f9fa, pbm: 0x38383D)
     static let TextColor = BrowserColor(normal: 0xffffff, pbm: 0x414146)
+    static let URLBarDivider = BrowserColor(normal: 0xE4E4E4, pbm: 0x414146)
     static let TabTrayBG = UIColor(rgb: 0x272727)
     static let locationBarBG = UIColor(rgb: 0xD7D7DB)
 
