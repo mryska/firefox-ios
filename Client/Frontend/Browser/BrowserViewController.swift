@@ -1751,6 +1751,7 @@ extension BrowserViewController: TabToolbarDelegate, PhotonActionSheetProtocol {
             let homePanelActions = self.getHomePanelActions(openURL: { (url) in
                 self.openURLInNewTab(url, isPrivate: false, isPrivileged: true)
             }, vcDelegate: self)
+            
             let tabActions = self.getTabMenuActions(openURL: { (url, isPrivate) in
                 self.openURLInNewTab(url, isPrivate: isPrivate, isPrivileged: true)
             })
@@ -1817,10 +1818,16 @@ extension BrowserViewController: TabToolbarDelegate, PhotonActionSheetProtocol {
             let actionMenuPresenter: (URL, Tab, UIView, UIPopoverArrowDirection) -> Void  = { (url, tab, view, direction) in
                 self.presentActivityViewController(url, tab: tab, sourceView: view, sourceRect: view.frame, arrowDirection: .up)
             }
+            
+            let findInPageAction = {
+                self.updateFindInPageVisibility(visible: true)
+            }
 
             // The logic of which actions appear when isnt final.
             if let tab = self.tabManager.selectedTab, let url = tab.url, !url.isLocal {
-                let pageActions = self.getTabActions(tab: tab, buttonView: button, presentShareMenu: actionMenuPresenter)
+                let pageActions = self.getTabActions(tab: tab, buttonView: button,
+                                                     presentShareMenu: actionMenuPresenter,
+                                                     findInPage: findInPageAction, presentableVC: self)
                 self.presentSheetWith(actions: pageActions, on: self, from: button)
             }
             return

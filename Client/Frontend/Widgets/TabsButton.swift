@@ -35,7 +35,7 @@ struct TabsButtonUX {
         theme.textColor = UIColor(rgb: 0x272727)
         theme.highlightButtonColor = TabsButtonUX.TitleColor
         theme.highlightTextColor = TabsButtonUX.TitleBackgroundColor
-        theme.highlightBorderColor = TabsButtonUX.TitleBackgroundColor
+        theme.highlightBorderColor = TabsButtonUX.TitleColor
         themes[Theme.NormalMode] = theme
 
         return themes
