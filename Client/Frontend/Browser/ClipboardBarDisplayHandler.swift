@@ -30,6 +30,7 @@ class ClipboardBarDisplayHandler {
     
     deinit {
         NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIApplicationWillEnterForeground, object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIApplicationDidEnterBackground, object: nil)
     }
     
     @objc private func SELAppWillEnterForegroundNotification() {
@@ -39,45 +40,54 @@ class ClipboardBarDisplayHandler {
     
     @objc private func SELAppWillResignActive() {
         sessionStarted = true
-        lastDisplayedURL = UIPasteboard.general.copiedURL?.absoluteString
     }
     
-    private func shouldDisplayBar() -> Bool {
+    private func shouldDisplayBar(_ copiedURL: String) -> Bool {
         if !sessionStarted ||
-            UIPasteboard.general.copiedURL == nil ||
-            wasClipboardURLAlreadyDisplayed() ||
+            wasClipboardURLAlreadyDisplayed(copiedURL) ||
             self.prefs.intForKey(IntroViewControllerSeenProfileKey) == nil {
             return false
         }
         sessionStarted = false
-        lastDisplayedURL = UIPasteboard.general.copiedURL?.absoluteString
         return self.prefs.boolForKey("showClipboardBar") ?? false
     }
     
     //If we already displayed this URL on the previous session
     //We shouldn't display it again
-    private func wasClipboardURLAlreadyDisplayed() -> Bool {
-        guard let clipboardURL = UIPasteboard.general.copiedURL?.absoluteString ,
-            let savedURL = lastDisplayedURL else {
-                return false
-        }
-        if clipboardURL == savedURL {
+    private func wasClipboardURLAlreadyDisplayed(_ clipboardURL: String) -> Bool {
+        if let lastDisplayedURL = lastDisplayedURL, lastDisplayedURL == clipboardURL {
             return true
         }
         return false
     }
     
     func checkIfShouldDisplayBar() {
-        guard let absoluteString = UIPasteboard.general.copiedURL?.absoluteString, shouldDisplayBar() else { return }
-        
-        clipboardToast = ButtonToast(labelText: Strings.GoToCopiedLink, descriptionText: absoluteString, buttonText: Strings.GoButtonTittle, completion: { buttonPressed in
+        UIPasteboard.general.asyncURL { copiedURL in
+            guard let url = copiedURL else {
+                return
+            }
 
-            guard let url = URL(string: absoluteString), buttonPressed else { return }
-            self.delegate?.settingsOpenURLInNewTab(url)
-        })
-        
-        if let toast = clipboardToast {
-            delegate?.shouldDisplay(clipboardBar: toast)
+            let absoluteString = url.absoluteString
+
+            guard self.shouldDisplayBar(absoluteString) else {
+                return
+            }
+
+            self.lastDisplayedURL = absoluteString
+
+            self.clipboardToast =
+                ButtonToast(
+                    labelText: Strings.GoToCopiedLink,
+                    descriptionText: url.absoluteDisplayString,
+                    buttonText: Strings.GoButtonTittle,
+                    completion: { buttonPressed in
+                guard let url = copiedURL, buttonPressed else { return }
+                self.delegate?.settingsOpenURLInNewTab(url)
+            })
+
+            if let toast = self.clipboardToast {
+                self.delegate?.shouldDisplay(clipboardBar: toast)
+            }
         }
     }
 }
