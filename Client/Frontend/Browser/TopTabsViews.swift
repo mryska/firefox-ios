@@ -106,8 +106,6 @@ class TopTabCell: UICollectionViewCell {
         
         self.clipsToBounds = false
         
-        backgroundColor = UIColor.clear
-        // Default style is light
         applyStyle(style)
     }
     
@@ -115,8 +113,10 @@ class TopTabCell: UICollectionViewCell {
         switch style {
         case Style.light:
             titleText.textColor = UIColor.darkText
+            backgroundColor = UIConstants.AppBackgroundColor
         case Style.dark:
             titleText.textColor = UIColor.lightText
+            backgroundColor = UIColor(rgb: 0x4A4A4F)
         }
     }
     
@@ -132,7 +132,6 @@ class TopTabCell: UICollectionViewCell {
     func closeTab() {
         delegate?.tabCellDidClose(self)
     }
-
 }
 
 class TopTabFader: UIView {

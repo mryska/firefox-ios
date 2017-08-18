@@ -116,8 +116,6 @@ extension PhotonActionSheetProtocol {
             HomePageHelper(prefs: self.profile.prefs).setHomePage(toTab: tab, presentAlertOn: presentableVC)
         }
 
-        //TODO: Add to pocket
-        
         let addReadingList = PhotonActionSheetItem(title: "Add to Reading List", iconString: "addToReadingList") { action in
             guard let tab = self.tabManager.selectedTab else { return }
             guard let url = tab.url else { return }
@@ -125,7 +123,6 @@ extension PhotonActionSheetProtocol {
         }
 
         let findInPageAction = PhotonActionSheetItem(title: Strings.AppMenuFindInPageTitleString, iconString: "menu-FindInPage") { action in
-            //do something steve!
             findInPage()
         }
 
@@ -188,14 +185,17 @@ extension PhotonActionSheetProtocol {
 
         let openPrivateTab = PhotonActionSheetItem(title: "Open private Tab", iconString: "smallPrivateMask") { action in
             openURL(nil, true)
-
         }
 
         let openTabTray = PhotonActionSheetItem(title: "Show Tabs", iconString: "") { action in
             //TODO: This has its own bug
         }
         
-        var actions = [openTab, openPrivateTab, openTabTray]
+        var actions = [openTab, openPrivateTab]
+        // On the iPad there is already a tabs button near the menu button. Dont need an extra openTab
+        if UIDevice.current.userInterfaceIdiom != .pad {
+            actions.append(openTabTray)
+        }
         if HomePageHelper(prefs: self.profile.prefs).isHomePageAvailable {
             actions.insert(openHomePage, at: 0)
         }

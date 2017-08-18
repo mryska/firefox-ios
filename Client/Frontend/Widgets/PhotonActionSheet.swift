@@ -22,6 +22,7 @@ private struct PhotonActionSheetUX {
     static let IconSize = CGSize(width: 24, height: 24)
     static let HeaderName  = "PhotonActionSheetHeaderView"
     static let CellName = "PhotonActionSheetCell"
+    static let CancelButtonHeight: CGFloat  = 56
 }
 
 public struct PhotonActionSheetItem {
@@ -66,7 +67,7 @@ class PhotonActionSheet: UIViewController, UITableViewDelegate, UITableViewDataS
 
     lazy var cancelButton: UIButton = {
         let button = UIButton()
-        button.setTitle("Cancel", for: .normal)
+        button.setTitle(Strings.CancelButtonTitle, for: .normal)
         button.backgroundColor = .white
         button.setTitleColor(UIColor(rgb: 0x00A2FE), for: .normal)
         button.layer.cornerRadius = 10
@@ -97,10 +98,8 @@ class PhotonActionSheet: UIViewController, UITableViewDelegate, UITableViewDataS
         if style == .centered {
             applyBackgroundBlur()
             self.tintColor = UIConstants.SystemBlueColor
-            
         }
     
-        
         view.addGestureRecognizer(tapRecognizer)
         view.addSubview(tableView)
 
@@ -122,29 +121,36 @@ class PhotonActionSheet: UIViewController, UITableViewDelegate, UITableViewDataS
         tableView.accessibilityIdentifier = "Context Menu"
 
         var width = min(self.view.frame.size.width, PhotonActionSheetUX.MaxWidth) - (PhotonActionSheetUX.Padding * 2)
-        // dont limit the width
         width = UIDevice.current.userInterfaceIdiom == .pad ? width : (self.view.frame.width - (PhotonActionSheetUX.Padding * 2))
         let height = actionSheetHeight()
+        
         if self.modalPresentationStyle == .popover {
             self.preferredContentSize = CGSize(width: width, height: height)
         }
-        tableView.reloadData()
-        tableView.setContentOffset(CGPoint(x: 0, y: CGFloat.greatestFiniteMagnitude), animated: false)
+
         if self.showCancelButton {
             self.view.addSubview(cancelButton)
             cancelButton.snp.makeConstraints { make in
                 make.centerX.equalTo(self.view.snp.centerX)
                 make.width.equalTo(width)
-                make.height.equalTo(56)
-                make.bottom.equalTo(self.view.snp.bottom).offset(-10)
+                make.height.equalTo(PhotonActionSheetUX.CancelButtonHeight)
+                make.bottom.equalTo(self.view.snp.bottom).offset(-PhotonActionSheetUX.Padding)
             }
+            tableView.setContentOffset(CGPoint(x: 0, y: CGFloat.greatestFiniteMagnitude), animated: false)
+        }
+        
+        if style == .bottom && UIDevice.current.userInterfaceIdiom == .pad {
+            // We are showing the menu in a popOver
+            self.actions = actions.map({ $0.reversed() }).reversed()
+            tableView.frame = CGRect(origin: CGPoint.zero, size: self.preferredContentSize)
+            return
         }
 
         tableView.snp.makeConstraints { make in
             make.centerX.equalTo(self.view.snp.centerX)
             switch style {
                 case .bottom:
-                    make.bottom.equalTo(cancelButton.snp.top).offset(-10)
+                    make.bottom.equalTo(cancelButton.snp.top).offset(-PhotonActionSheetUX.Padding)
                 case .centered:
                     make.centerY.equalTo(self.view.snp.centerY)
             }
@@ -154,6 +160,7 @@ class PhotonActionSheet: UIViewController, UITableViewDelegate, UITableViewDataS
             let h = min(height, view.bounds.height * 0.8)
             make.height.equalTo(h).priority(10)
         }
+        self.tableView.reloadData()
     }
 
     private func applyBackgroundBlur() {
@@ -195,11 +202,9 @@ class PhotonActionSheet: UIViewController, UITableViewDelegate, UITableViewDataS
     }
 
     override func updateViewConstraints() {
-        let height = actionSheetHeight()
-        tableView.snp.updateConstraints { make in
-            make.height.lessThanOrEqualTo(Int(view.bounds.height * 0.8))
-            let h = min(height, view.bounds.height * 0.8)
-            make.height.equalTo(h).priority(10)
+//        let height = actionSheetHeight()
+        if !self.showCancelButton {
+            tableView.frame = CGRect(origin: CGPoint.zero, size: self.preferredContentSize)
         }
         super.updateViewConstraints()
     }
@@ -247,7 +252,8 @@ class PhotonActionSheet: UIViewController, UITableViewDelegate, UITableViewDataS
     }
 
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        if section > 0 { //TODO: use enum here
+        // If we have multiple sections show a separator for each one except the first.
+        if section > 0 {
             return 13
         }
         return self.site != nil ? PhotonActionSheetUX.HeaderHeight : 0
@@ -257,14 +263,13 @@ class PhotonActionSheet: UIViewController, UITableViewDelegate, UITableViewDataS
         let cell = tableView.dequeueReusableCell(withIdentifier: PhotonActionSheetUX.CellName, for: indexPath) as! PhotonActionSheetCell
         let action = actions[indexPath.section][indexPath.row]
 
-        // Only show separators when we have one section or on the first item of a section (we show separators at the top of a row)
-//        let hasSeparator = actions.count == 1 ? true : indexPath.row == 0 && indexPath.section != 0
         cell.tintColor = action.isEnabled ? UIConstants.SystemBlueColor : self.tintColor
         cell.configureCell(action.title, imageString: action.iconString)
         return cell
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        // If we have multiple sections show a separator for each one except the first.
         if section > 0 {
             return tableView.dequeueReusableHeaderFooterView(withIdentifier: "SeparatorSectionHeader")
         }
@@ -285,7 +290,6 @@ private class PhotonActionSheetHeaderView: UITableViewHeaderFooterView {
     lazy var titleLabel: UILabel = {
         let titleLabel = UILabel()
         titleLabel.font = DynamicFontHelper.defaultHelper.MediumSizeBoldFontAS
-      //  titleLabel.textColor = PhotonActionSheetUX.LabelColor
         titleLabel.textAlignment = .left
         titleLabel.numberOfLines = 2
         return titleLabel
@@ -294,7 +298,6 @@ private class PhotonActionSheetHeaderView: UITableViewHeaderFooterView {
     lazy var descriptionLabel: UILabel = {
         let titleLabel = UILabel()
         titleLabel.font = DynamicFontHelper.defaultHelper.MediumSizeRegularWeightAS
-    //    titleLabel.textColor = PhotonActionSheetUX.DescriptionLabelColor
         titleLabel.textAlignment = .left
         titleLabel.numberOfLines = 1
         return titleLabel
@@ -319,8 +322,6 @@ private class PhotonActionSheetHeaderView: UITableViewHeaderFooterView {
         
         self.backgroundView = UIView()
         self.backgroundView?.backgroundColor = .clear
-
-     //   contentView.backgroundColor = UIColor.lightGray
         contentView.addSubview(siteImageView)
 
         siteImageView.snp.remakeConstraints { make in
@@ -380,7 +381,6 @@ private class PhotonActionSheetSeparator: UITableViewHeaderFooterView {
     
     override init(reuseIdentifier: String?) {
         super.init(reuseIdentifier: reuseIdentifier)
-////        self.alpha = 0.95
         self.backgroundView = UIView()
         self.backgroundView?.backgroundColor = .clear
         separatorLineView.backgroundColor = UIColor.lightGray
