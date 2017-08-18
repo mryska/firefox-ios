@@ -10,14 +10,16 @@ import Shared
 private struct PhotonActionSheetUX {
     static let MaxWidth: CGFloat = 375
     static let Padding: CGFloat = 10
+    static let SectionVerticalPadding: CGFloat = 13
     static let HeaderHeight: CGFloat = 80
     static let RowHeight: CGFloat = 44
     static let LabelColor = UIAccessibilityDarkerSystemColorsEnabled() ? UIColor.black : UIColor(rgb: 0x353535)
     static let DescriptionLabelColor = UIColor(rgb: 0x919191)
     static let PlaceholderImage = UIImage(named: "defaultTopSiteIcon")
-    static let CornerRadius: CGFloat = 3
+    static let CancelCornerRadius: CGFloat = 3
     static let BorderWidth: CGFloat = 0.5
     static let BorderColor = UIColor(white: 0, alpha: 0.1)
+    static let CornerRadius: CGFloat = 10
     static let SiteImageViewSize = 52
     static let IconSize = CGSize(width: 24, height: 24)
     static let HeaderName  = "PhotonActionSheetHeaderView"
@@ -69,8 +71,8 @@ class PhotonActionSheet: UIViewController, UITableViewDelegate, UITableViewDataS
         let button = UIButton()
         button.setTitle(Strings.CancelButtonTitle, for: .normal)
         button.backgroundColor = .white
-        button.setTitleColor(UIColor(rgb: 0x00A2FE), for: .normal)
-        button.layer.cornerRadius = 10
+        button.setTitleColor(UIConstants.SystemBlueColor, for: .normal)
+        button.layer.cornerRadius = PhotonActionSheetUX.CancelCornerRadius
         button.addTarget(self, action: #selector(PhotonActionSheet.dismiss(_:)), for:.touchUpInside)
         return button
     }()
@@ -115,7 +117,7 @@ class PhotonActionSheet: UIViewController, UITableViewDelegate, UITableViewDataS
         tableView.isScrollEnabled = true
         tableView.showsVerticalScrollIndicator = false
         tableView.bounces = false
-        tableView.layer.cornerRadius = 10
+        tableView.layer.cornerRadius = PhotonActionSheetUX.CornerRadius
         tableView.separatorStyle = .none
         tableView.cellLayoutMarginsFollowReadableWidth = false
         tableView.accessibilityIdentifier = "Context Menu"
@@ -179,7 +181,7 @@ class PhotonActionSheet: UIViewController, UITableViewDelegate, UITableViewDataS
     fileprivate func actionSheetHeight() -> CGFloat {
         let count = actions.reduce(0) { $1.count + $0 }
         let headerHeight = (style == .centered) ? PhotonActionSheetUX.HeaderHeight : CGFloat(0)
-        let separatorHeight = actions.count > 1 ? (actions.count - 1) * 13 : 0
+        let separatorHeight = actions.count > 1 ? (actions.count - 1) * Int(PhotonActionSheetUX.SectionVerticalPadding) : 0
         return CGFloat(separatorHeight) + headerHeight + CGFloat(count) * PhotonActionSheetUX.RowHeight
     }
     
@@ -188,7 +190,6 @@ class PhotonActionSheet: UIViewController, UITableViewDelegate, UITableViewDataS
         UIView.animate(withDuration: 0.4) {
             self.view.backgroundColor = UIColor(white: 0, alpha: 0.25)
         }
-        
     }
 
     func dismiss(_ gestureRecognizer: UIGestureRecognizer?) {
@@ -202,7 +203,6 @@ class PhotonActionSheet: UIViewController, UITableViewDelegate, UITableViewDataS
     }
 
     override func updateViewConstraints() {
-//        let height = actionSheetHeight()
         if !self.showCancelButton {
             tableView.frame = CGRect(origin: CGPoint.zero, size: self.preferredContentSize)
         }
@@ -254,7 +254,7 @@ class PhotonActionSheet: UIViewController, UITableViewDelegate, UITableViewDataS
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         // If we have multiple sections show a separator for each one except the first.
         if section > 0 {
-            return 13
+            return PhotonActionSheetUX.SectionVerticalPadding
         }
         return self.site != nil ? PhotonActionSheetUX.HeaderHeight : 0
     }
