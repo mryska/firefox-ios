@@ -16,7 +16,6 @@ private struct PhotonActionSheetUX {
     static let LabelColor = UIAccessibilityDarkerSystemColorsEnabled() ? UIColor.black : UIColor(rgb: 0x353535)
     static let DescriptionLabelColor = UIColor(rgb: 0x919191)
     static let PlaceholderImage = UIImage(named: "defaultTopSiteIcon")
-    static let CancelCornerRadius: CGFloat = 3
     static let BorderWidth: CGFloat = 0.5
     static let BorderColor = UIColor(white: 0, alpha: 0.1)
     static let CornerRadius: CGFloat = 10
@@ -72,7 +71,7 @@ class PhotonActionSheet: UIViewController, UITableViewDelegate, UITableViewDataS
         button.setTitle(Strings.CancelButtonTitle, for: .normal)
         button.backgroundColor = .white
         button.setTitleColor(UIConstants.SystemBlueColor, for: .normal)
-        button.layer.cornerRadius = PhotonActionSheetUX.CancelCornerRadius
+        button.layer.cornerRadius = PhotonActionSheetUX.CornerRadius
         button.addTarget(self, action: #selector(PhotonActionSheet.dismiss(_:)), for:.touchUpInside)
         return button
     }()
