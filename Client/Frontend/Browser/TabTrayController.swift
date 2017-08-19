@@ -1042,7 +1042,7 @@ class TrayToolbar: UIView {
 
     lazy var menuButton: UIButton = {
         let button = UIButton()
-        button.setImage(UIImage.templateImageNamed("nav-menu"), for: .normal)
+        button.setImage(UIImage.templateImageNamed("menu-More-Options"), for: .normal)
         button.accessibilityLabel = Strings.AppMenuButtonAccessibilityLabel
         button.accessibilityIdentifier = "TabTrayController.menuButton"
         return button

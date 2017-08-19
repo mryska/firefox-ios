@@ -120,6 +120,9 @@ class PhotonActionSheet: UIViewController, UITableViewDelegate, UITableViewDataS
         tableView.separatorStyle = .none
         tableView.cellLayoutMarginsFollowReadableWidth = false
         tableView.accessibilityIdentifier = "Context Menu"
+        let footer = UIView(frame: CGRect(origin: CGPoint.zero, size: CGSize(width: tableView.frame.width, height: 6)))
+        tableView.tableFooterView = footer
+        tableView.tableHeaderView = footer.clone()
 
         var width = min(self.view.frame.size.width, PhotonActionSheetUX.MaxWidth) - (PhotonActionSheetUX.Padding * 2)
         width = UIDevice.current.userInterfaceIdiom == .pad ? width : (self.view.frame.width - (PhotonActionSheetUX.Padding * 2))
@@ -179,20 +182,16 @@ class PhotonActionSheet: UIViewController, UITableViewDelegate, UITableViewDataS
 
     fileprivate func actionSheetHeight() -> CGFloat {
         let count = actions.reduce(0) { $1.count + $0 }
-        let headerHeight = (style == .centered) ? PhotonActionSheetUX.HeaderHeight : CGFloat(0)
+        let headerHeight = (style == .centered) ? PhotonActionSheetUX.HeaderHeight : CGFloat(12)
         let separatorHeight = actions.count > 1 ? (actions.count - 1) * Int(PhotonActionSheetUX.SectionVerticalPadding) : 0
         return CGFloat(separatorHeight) + headerHeight + CGFloat(count) * PhotonActionSheetUX.RowHeight
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        UIView.animate(withDuration: 0.4) {
-            self.view.backgroundColor = UIColor(white: 0, alpha: 0.25)
-        }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
     }
 
     func dismiss(_ gestureRecognizer: UIGestureRecognizer?) {
-        self.view.backgroundColor = UIColor(white: 0, alpha: 0)
         self.dismiss(animated: true, completion: nil)
     }
 
@@ -253,7 +252,7 @@ class PhotonActionSheet: UIViewController, UITableViewDelegate, UITableViewDataS
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         // If we have multiple sections show a separator for each one except the first.
         if section > 0 {
-            return PhotonActionSheetUX.SectionVerticalPadding
+           return PhotonActionSheetUX.SectionVerticalPadding
         }
         return self.site != nil ? PhotonActionSheetUX.HeaderHeight : 0
     }

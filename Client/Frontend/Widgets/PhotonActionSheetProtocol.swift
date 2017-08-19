@@ -160,7 +160,7 @@ extension PhotonActionSheetProtocol {
             guard let tab = self.tabManager.selectedTab else { return }
             presentShareMenu(url, tab, buttonView, .up)
         }
-        let copyURL = PhotonActionSheetItem(title: "Copy URL", iconString: "nav-refresh") { _ in
+        let copyURL = PhotonActionSheetItem(title: "Copy URL", iconString: "menu-Copy-Link") { _ in
             UIPasteboard.general.string = self.tabManager.selectedTab?.url?.absoluteString ?? ""
         }
         
