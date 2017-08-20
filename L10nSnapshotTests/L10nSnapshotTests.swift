@@ -227,6 +227,6 @@ class L10nSnapshotTests: L10nBaseSnapshotTests {
         app.textFields["url"].tap()
         app.buttons["HomePanels.ReadingList"].tap()
         app.tables["ReadingTable"].cells.element(boundBy: 0).press(forDuration: 2.0)
-        snapshot("22ReadingListContextMenu-01")
+        snapshot("22ReadingListTableContextMenu-01")
     }
 }
