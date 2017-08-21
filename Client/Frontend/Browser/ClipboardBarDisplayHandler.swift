@@ -49,7 +49,7 @@ class ClipboardBarDisplayHandler {
             return false
         }
         sessionStarted = false
-        return self.prefs.boolForKey("showClipboardBar") ?? false
+        return true
     }
     
     //If we already displayed this URL on the previous session
@@ -62,6 +62,11 @@ class ClipboardBarDisplayHandler {
     }
     
     func checkIfShouldDisplayBar() {
+        guard self.prefs.boolForKey("showClipboardBar") ?? false else {
+            // There's no point in doing any of this work unless the
+            // user has asked for it in settings.
+            return
+        }
         UIPasteboard.general.asyncURL { copiedURL in
             guard let url = copiedURL else {
                 return
