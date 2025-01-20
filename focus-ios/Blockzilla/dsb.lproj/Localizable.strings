@@ -277,9 +277,6 @@
 /* Dark theme option in settings menu */
 "Settings.darkTheme" = "Śamny";
 
-/* Description associated with the Crash Reports toggle on settings screen */
-"Settings.detailTextCrashReports" = "Rozpšawy wowalenjow nam zmóžnjaju, problemy z wobglědowakom diagnosticěrowaś a rozwězaś.";
-
 /* Description associated to the Search Suggestions toggle on main screen. %@ is the app name (Focus/Klar) */
 "Settings.detailTextSearchSuggestion" = "%@ se na wašu pytnicu pósćelo, což w adresowem pólu zapódajośo.";
 

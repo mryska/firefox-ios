@@ -277,9 +277,6 @@
 /* Dark theme option in settings menu */
 "Settings.darkTheme" = "Tamna";
 
-/* Description associated with the Crash Reports toggle on settings screen */
-"Settings.detailTextCrashReports" = "Izvještaji o padu omogućavaju nam da dijagnosticiramo i popravimo probleme s preglednikom.";
-
 /* Description associated to the Search Suggestions toggle on main screen. %@ is the app name (Focus/Klar) */
 "Settings.detailTextSearchSuggestion" = "%@ će poslati ono što unesete u adresnu traku vašem pretraživaču.";
 

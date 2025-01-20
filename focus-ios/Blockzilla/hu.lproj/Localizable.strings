@@ -277,9 +277,6 @@
 /* Dark theme option in settings menu */
 "Settings.darkTheme" = "Sötét";
 
-/* Description associated with the Crash Reports toggle on settings screen */
-"Settings.detailTextCrashReports" = "Az összeomlás-jelentések lehetővé teszik a böngésző hibáinak diagnosztizálását és javítását.";
-
 /* Description associated to the Search Suggestions toggle on main screen. %@ is the app name (Focus/Klar) */
 "Settings.detailTextSearchSuggestion" = "A %@ elküldi a címsávba írt szöveget a keresőszolgáltatásának.";
 
