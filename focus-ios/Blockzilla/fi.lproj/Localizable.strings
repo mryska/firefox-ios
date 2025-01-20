@@ -277,9 +277,6 @@
 /* Dark theme option in settings menu */
 "Settings.darkTheme" = "Tumma";
 
-/* Description associated with the Crash Reports toggle on settings screen */
-"Settings.detailTextCrashReports" = "Kaatumisilmoitusten avulla voimme diagnosoida ja korjata selaimen ongelmia.";
-
 /* Description associated to the Search Suggestions toggle on main screen. %@ is the app name (Focus/Klar) */
 "Settings.detailTextSearchSuggestion" = "%@ lähettää osoiteriville kirjoittamasi tiedot hakukoneelle.";
 

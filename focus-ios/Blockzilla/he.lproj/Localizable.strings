@@ -247,6 +247,9 @@
 /* Save button label */
 "Save" = "שמירה";
 
+/* Label for error state when entering an invalid search engine URL. %s is a search term in a URL. */
+"SearchEngine.addEngineError" = "משימה זו נכשלה. מוטב לנסות להחליף את הביטוי לחיפוש בזה: %s.";
+
 /* Label for disable option on search suggestions prompt */
 "SearchSuggestions.promptDisable" = "לא";
 
