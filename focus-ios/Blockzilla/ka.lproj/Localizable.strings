@@ -182,7 +182,7 @@
 "NewOnboarding.Button.Title.V2" = "დაიწყეთ";
 
 /* Text for a label that indicates the subtitle for the onboarding screen version 2. */
-"NewOnboarding.Subtitle.V2" = "სწრაფი. პირადი. მხოლოდ საქმისკენ მიმართული.";
+"NewOnboarding.Subtitle.V2" = "სწრაფი. პირადი. საქმისკენ მიმართული.";
 
 /* Text for a label that indicates the title of button from onboarding screen */
 "Onboarding.Button.Title" = "დაიწყეთ გვერდების მონახულება";
@@ -365,7 +365,7 @@
 "Settings.setAsDefaultBrowser" = "ნაგულისხმევ ბრაუზერად მითითება";
 
 /* %@ is the name of the app. Description for set as default browser option */
-"Settings.setAsDefaultBrowserDescription" = "შედეგად ბმულებს საიტებიდან, ელფოსტიდან, წერილებიდან, პირდაპირ გახსნის %@.";
+"Settings.setAsDefaultBrowserDescription" = "შედეგად, ბმულებს საიტებიდან, ელფოსტიდან, წერილებიდან, პირდაპირ გახსნის %@.";
 
 /* System value for theme section in settings menu */
 "Settings.systemTheme" = "სისტემის მიხედვით";
