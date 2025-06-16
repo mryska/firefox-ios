@@ -274,8 +274,17 @@
 /* Button label for accepting Content blocker alert */
 "Settings.blockOtherYes2" = "Эчтәлек күзәтүчеләрне блоклау";
 
+/* On the Settings screen, this is the subtitle text for a toggle which controls sending daily usage ping. */
+"Settings.DailyUsagePing.Message" = "Бу Mozilla-га актив кулланучылар санын бәяләргә ярдәм итә.";
+
+/* On the Settings screen, this is the title text for a toggle which controls automatically sending daily usage ping. */
+"Settings.DailyUsagePing.Title" = "Көндәлек куллану пингы";
+
 /* Dark theme option in settings menu */
 "Settings.darkTheme" = "Караңгы";
+
+/* Description associated with the Crash Reports toggle on settings screen */
+"Settings.detailTextCrashReports.V2" = "Бу безгә браузердагы хаталарны ачыкларга һәм төзәтергә ярдәм итә.";
 
 /* Description associated to the Search Suggestions toggle on main screen. %@ is the app name (Focus/Klar) */
 "Settings.detailTextSearchSuggestion" = "%@ Сез адрес юлына язганны эзләү системагызга җибәрәчәк.";
