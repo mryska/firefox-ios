@@ -41,19 +41,19 @@
 "About.topLabel" = "Το %@ σάς δίνει τον έλεγχο.";
 
 /* Title for action sheet item to open the current page in another application. Placeholder is the name of the application to open the current page. */
-"actionSheet.openIn" = "Άνοιγμα σε %@";
+"actionSheet.openIn" = "Άνοιγμα στο «%@»";
 
 /* Button to dismiss the 'Add Pass Failed' alert. */
 "AddPass.Error.Dismiss" = "OK";
 
 /* Message of the 'Add Pass Failed' alert. */
-"AddPass.Error.Message" = "Προέκυψε σφάλμα κατά την προσθήκη του πάσο στο Πορτοφόλι. Παρακαλώ δοκιμάστε ξανά αργότερα.";
+"AddPass.Error.Message" = "Προέκυψε σφάλμα κατά την προσθήκη του πάσου στο Πορτοφόλι. Δοκιμάστε ξανά αργότερα.";
 
 /* Title of the 'Add Pass Failed' alert. */
-"AddPass.Error.Title" = "Αποτυχία προσθήκης πάσο";
+"AddPass.Error.Title" = "Αποτυχία προσθήκης πάσου";
 
 /* %@ is app name. Prompt shown to ask the user to use Touch ID, Face ID, or passcode to continue browsing after returning to the app. */
-"Authentication.reason" = "Ταυτοποίηση για επιστροφή στο %@";
+"Authentication.reason" = "Κάντε ταυτοποίηση για επιστροφή στο %@";
 
 /* Label for button to add a custom URL */
 "Autocomplete.addCustomUrl" = "Προσθήκη προσαρμοσμένου URL";
@@ -173,7 +173,7 @@
 "FirstRun.lastSlide.buttonLabel" = "OK, κατάλαβα!";
 
 /* Message label on the first run screen */
-"FirstRun.messageLabelTagline" = "Περιηγηθείτε σαν να μη σας βλέπει κανείς.";
+"FirstRun.messageLabelTagline" = "Περιηγηθείτε σαν να μην σας βλέπει κανείς.";
 
 /* Button label used to close a menu that displays as a popup. */
 "Menu.Close" = "Κλείσιμο";
@@ -257,7 +257,7 @@
 "SearchSuggestions.promptEnable" = "Ναι";
 
 /* %@ is the name of the app (Focus / Klar). Label for search suggestions prompt message */
-"SearchSuggestions.promptMessage" = "Για να λάβετε προτάσεις, το %@ πρέπει να στείλει ό,τι πληκτρολογείτε στη γραμμή διευθύνσεων στη μηχανή αναζήτησης.";
+"SearchSuggestions.promptMessage" = "Για να λαμβάνετε προτάσεις, το %@ πρέπει να στέλνει στη μηχανή αναζήτησης ό,τι πληκτρολογείτε στη γραμμή διευθύνσεων.";
 
 /* Title for search suggestions prompt */
 "SearchSuggestions.promptTitle" = "Εμφάνιση προτάσεων αναζήτησης;";
@@ -389,7 +389,7 @@
 "Settings.toggleBlockOther2" = "Περιεχόμενο";
 
 /* Label for the checkbox to toggle Social trackers */
-"Settings.toggleBlockSocial2" = "Κοινωνικά δίκτυα";
+"Settings.toggleBlockSocial2" = "Μέσα κοινωνικής δικτύωσης";
 
 /* Label for Crash Reports toggle on settings screen */
 "Settings.toggleCrashReports" = "Αυτόματη αποστολή αναφορών κατάρρευσης";
@@ -434,7 +434,7 @@
 "share" = "Κοινή χρήση";
 
 /* Text for the share menu option when a user wants to add the site to Shortcuts */
-"ShareMenu.AddToShortcuts" = "Προσθήκη στις συντομεύσεις";
+"ShareMenu.AddToShortcuts" = "Προσθήκη συντόμευσης";
 
 /* Toast displayed to the user after adding the item to the Shortcuts. */
 "ShareMenu.AddToShortcuts.Confirm" = "Προστέθηκε στις συντομεύσεις";
@@ -446,25 +446,25 @@
 "ShareMenu.FindInPage" = "Εύρεση στη σελίδα";
 
 /* Text for the share menu option when a user wants to remove the site from Shortcuts */
-"ShareMenu.RemoveFromShortcuts" = "Αφαίρεση από συντομεύσεις";
+"ShareMenu.RemoveFromShortcuts" = "Αφαίρεση συντόμευσης";
 
 /* Toast displayed to the user after removing the item from the Shortcuts. */
 "ShareMenu.RemoveShortcut.Confirm" = "Η συντόμευση αφαιρέθηκε";
 
 /* Text for the share menu option when a user wants to reload the site as a desktop */
-"ShareMenu.RequestDesktop" = "Έκδοση για υπολογιστές";
+"ShareMenu.RequestDesktop" = "Απαίτηση έκδοσης υπολογιστή";
 
 /* Text for the share menu option when a user wants to reload the site as a mobile device */
-"ShareMenu.RequestMobile" = "Έκδοση για κινητά";
+"ShareMenu.RequestMobile" = "Έκδοση κινητής συσκευής";
 
 /* Text for the share menu option when a user wants to open the current website in the Chrome app. */
-"ShareMenu.ShareOpenChrome" = "Άνοιγμα σε Chrome";
+"ShareMenu.ShareOpenChrome" = "Άνοιγμα στο Chrome";
 
 /* Text for the share menu option when a user wants to open the current website in the default browser. */
-"ShareMenu.ShareOpenDefaultBrowser" = "Άνοιγμα σε προεπιλεγμένο φυλλομετρητή";
+"ShareMenu.ShareOpenDefaultBrowser" = "Άνοιγμα στο προεπιλεγμένο πρόγραμμα περιήγησης";
 
 /* Text for the share menu option when a user wants to open the current website in the Firefox app. */
-"ShareMenu.ShareOpenFirefox" = "Άνοιγμα σε Firefox";
+"ShareMenu.ShareOpenFirefox" = "Άνοιγμα στο Firefox";
 
 /* Text for the share menu option when a user wants to open the current website inside the app. */
 "ShareMenu.ShareOpenLink" = "Άνοιγμα συνδέσμου";
@@ -473,7 +473,7 @@
 "ShareMenu.SharePage" = "Κοινή χρήση σελίδας με…";
 
 /* Text for the long press on a shortcut option in context menu. */
-"ShortcutView.RemoveFromShortcuts" = "Αφαίρεση από συντομεύσεις";
+"ShortcutView.RemoveFromShortcuts" = "Αφαίρεση συντόμευσης";
 
 /* Text for the long press on a shortcut rename option in context menu. */
 "ShortcutView.Rename" = "Μετονομασία συντόμευσης";
@@ -536,7 +536,7 @@
 "Tip.BiometricTouchId.Description" = "Ενεργοποίηση Touch ID";
 
 /* Text for a label that indicates the description for request desktop tip. */
-"Tip.RequestDesktop.Description" = "Ενέργειες σελίδας > Έκδοση για υπολογιστές";
+"Tip.RequestDesktop.Description" = "Ενέργειες σελίδας > Απαίτηση έκδοσης υπολογιστή";
 
 /* Text for a label that indicates the title for request desktop tip. */
 "Tip.RequestDesktop.Title" = "Θέλετε να δείτε την πλήρη έκδοση ενός ιστοτόπου;";
@@ -578,7 +578,7 @@
 "TooltipBodyText.ContextMenu" = "Μεταβείτε στις ρυθμίσεις για να διαχειριστείτε συγκεκριμένες επιλογές απορρήτου και ασφάλειας.";
 
 /* This is the body text that is displayed for the Privacy tooltip */
-"TooltipBodyText.Privacy" = "Αυτές οι προεπιλεγμένες ρυθμίσεις προσφέρουν ισχυρή προστασία. Αλλά μπορείτε εύκολα να τις προσαρμόσετε για να ταιριάξουν με τις δικές σας ανάγκες.";
+"TooltipBodyText.Privacy" = "Οι προεπιλεγμένες ρυθμίσεις παρέχουν ισχυρή προστασία, αλλά μπορείτε εύκολα να τις προσαρμόσετε με βάση τις ανάγκες σας.";
 
 /* This is the body text that is displayed for the Search Bar tooltip */
 "TooltipBodyText.SearchBar" = "Ξεκινήστε τη συνεδρία ιδιωτικής περιήγησής σας και θα αποκλείσουμε τους ιχνηλάτες και άλλα επιβλαβή στοιχεία.";
@@ -596,7 +596,7 @@
 "TooltipBodyText.TrashIcon.V2" = "Πατήστε εδώ για να τα διαγράψετε όλα — ιστορικό, cookie, τα πάντα — και ξεκινήστε από την αρχή σε μια νέα καρτέλα.";
 
 /* This is the title text that is displayed for the Privacy tooltip */
-"TooltipTitleText.Privacy" = "Προστατεύεστε!";
+"TooltipTitleText.Privacy" = "Προστατεύεστε! ";
 
 /* Text for tracking protection screen showing the connection is not secure */
 "trackingProtection.connectionNotSecureLabel" = "Η σύνδεση δεν είναι ασφαλής";
@@ -653,7 +653,7 @@
 "WidgetOnboardingCard.ActionButton" = "Εμφάνιση οδηγιών";
 
 /* Subtitle shown on card view explaining the app has a widget option. %@ is the name of the app (Focus/Klar). */
-"WidgetOnboardingCard.Subtitle" = "Θα σας αφήσουμε στην ιδιωτική σας περιήγηση, αλλά ξεκινήστε πιο γρήγορα την επόμενη φορά με το widget %@ στην αρχική σας οθόνη.";
+"WidgetOnboardingCard.Subtitle" = "Συνεχίστε την ιδιωτική σας περιήγηση, αλλά ξεκινήστε ταχύτερα την επόμενη φορά με το widget του %@ στην οθόνη Αφετηρίας.";
 
 /* Title shown on card view explaining the app has a widget option */
 "WidgetOnboardingCard.Title" = "Το ιστορικό περιήγησης διαγράφηκε! 🎉";
