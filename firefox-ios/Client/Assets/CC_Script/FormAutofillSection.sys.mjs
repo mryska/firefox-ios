@@ -246,14 +246,35 @@ export class FormAutofillSection {
         // allows for fields that might commonly appear twice such as a verification
         // email field, an invisible field that appears next to the user-visible field,
         // and simple cases where a page error where a field name is reused twice.
-        let isDuplicate = candidateSection.fieldDetails.find(
-          f => f.fieldName == cur.fieldName && f.isVisible && cur.isVisible
+        let dupIndex = candidateSection.fieldDetails.findIndex(
+          f =>
+            f.fieldName == cur.fieldName &&
+            f.isVisible &&
+            cur.isVisible &&
+            !f.isLookup
         );
+        let isDuplicate = dupIndex != -1;
 
         if (isDuplicate) {
           const [last] = candidateSection.fieldDetails.slice(-1);
           if (last.fieldName == cur.fieldName) {
             isDuplicate = false;
+          } else if (
+            lazy.FormAutofillUtils.getCategoryFromFieldName(cur.fieldName) ==
+            "name"
+          ) {
+            // If the duplicate field is in the "name" category (e.g., family-name, given-name),
+            // we check whether all fields starting from the first duplicate also belong to the
+            // name category. If they do, we don't consider the field a duplicate, since name
+            // fields often appear in groups like family-name + given-name.
+            isDuplicate = !candidateSection.fieldDetails
+              .slice(dupIndex)
+              .every(
+                f =>
+                  lazy.FormAutofillUtils.getCategoryFromFieldName(
+                    f.fieldName
+                  ) === "name"
+              );
           }
         }
 
@@ -316,27 +337,63 @@ export class FormAutofillSection {
     return data;
   }
 
+  shouldAutofillField(fieldDetail) {
+    // We don't save security code, but if somehow the profile has securty code,
+    // make sure we don't autofill it.
+    if (fieldDetail.fieldName == "cc-csc") {
+      return false;
+    }
+
+    // When both visible and invisible elements exist, we only autofill the
+    // visible element.
+    if (!fieldDetail.isVisible) {
+      return !this.fieldDetails.some(
+        field => field.fieldName == fieldDetail.fieldName && field.isVisible
+      );
+    }
+
+    // Only fill a street address lookup field if it is the only street
+    // address related field in this section. Similarly, for postal code
+    // fields.
+    if (fieldDetail.isLookup) {
+      const STREET_FIELDS = [
+        "street-address",
+        "address-line1",
+        "address-line2",
+        "address-line3",
+      ];
+
+      let INTERESTED_FIELDS = [];
+      if (STREET_FIELDS.includes(fieldDetail.fieldName)) {
+        INTERESTED_FIELDS = STREET_FIELDS;
+      } else if (fieldDetail.fieldName == "postal-code") {
+        INTERESTED_FIELDS = ["postal-code"];
+      }
+
+      if (
+        INTERESTED_FIELDS.length &&
+        this.fieldDetails.some(
+          field =>
+            INTERESTED_FIELDS.includes(field.fieldName) &&
+            field.isVisible &&
+            !field.isLookup
+        )
+      ) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   /**
    * Heuristics to determine which fields to autofill when a section contains
    * multiple fields of the same type.
    */
   getAutofillFields() {
-    return this.fieldDetails.filter(fieldDetail => {
-      // We don't save security code, but if somehow the profile has securty code,
-      // make sure we don't autofill it.
-      if (fieldDetail.fieldName == "cc-csc") {
-        return false;
-      }
-
-      // When both visible and invisible elements exist, we only autofill the
-      // visible element.
-      if (!fieldDetail.isVisible) {
-        return !this.fieldDetails.some(
-          field => field.fieldName == fieldDetail.fieldName && field.isVisible
-        );
-      }
-      return true;
-    });
+    return this.fieldDetails.filter(fieldDetail =>
+      this.shouldAutofillField(fieldDetail)
+    );
   }
 
   /*
@@ -366,6 +423,15 @@ export class FormAutofillSection {
   onFilled(filledResult) {
     lazy.AutofillTelemetry.recordFormInteractionEvent(
       "filled",
+      this.flowId,
+      this.fieldDetails,
+      filledResult
+    );
+  }
+
+  onFilledOnFieldsUpdate(filledResult) {
+    lazy.AutofillTelemetry.recordFormInteractionEvent(
+      "filled_on_fields_update",
       this.flowId,
       this.fieldDetails,
       filledResult
@@ -444,7 +510,10 @@ export class FormAutofillAddressSection extends FormAutofillSection {
     const country = lazy.FormAutofillUtils.identifyCountryCode(
       record.country || record["country-name"]
     );
-    if (!lazy.FormAutofill.isAutofillAddressesAvailableInCountry(country)) {
+    if (
+      country &&
+      !lazy.FormAutofill.isAutofillAddressesAvailableInCountry(country)
+    ) {
       // We don't want to save data in the wrong fields due to not having proper
       // heuristic regexes in countries we don't yet support.
       this.log.warn(
@@ -476,22 +545,16 @@ export class FormAutofillCreditCardSection extends FormAutofillSection {
   /**
    * Determine whether a set of cc fields identified by our heuristics form a
    * valid credit card section.
-   * There are 4 different cases when a field is considered a credit card field
+   * There are 3 different cases when a field is considered a credit card field
    * 1. Identified by autocomplete attribute. ex <input autocomplete="cc-number">
-   * 2. Identified by fathom and fathom is pretty confident (when confidence
-   *    value is higher than `highConfidenceThreshold`)
-   * 3. Identified by fathom. Confidence value is between `fathom.confidenceThreshold`
-   *    and `fathom.highConfidenceThreshold`
-   * 4. Identified by regex-based heurstic. There is no confidence value in thise case.
+   * 2. Identified by fathom.
+   * 3. Identified by regex-based heurstic. There is no confidence value in thise case.
    *
    * A form is considered a valid credit card form when one of the following condition
    * is met:
-   * A. One of the cc field is identified by autocomplete (case 1)
+   * A. One of the cc field is identified by autocomplete (case 1).
    * B. One of the cc field is identified by fathom (case 2 or 3), and there is also
-   *    another cc field found by any of our heuristic (case 2, 3, or 4)
-   * C. Only one cc field is found in the section, but fathom is very confident (Case 2).
-   *    Currently we add an extra restriction to this rule to decrease the false-positive
-   *    rate. See comments below for details.
+   *    another cc field found by any of our heuristic (case 2, 3).
    *
    * @returns {boolean} True for a valid section, otherwise false
    */
@@ -540,14 +603,6 @@ export class FormAutofillCreditCardSection extends FormAutofillSection {
       if (ccNumberDetail || ccExpiryDetail) {
         return true;
       }
-    }
-
-    // Condition C.
-    if (
-      ccNumberDetail?.isOnlyVisibleFieldWithHighConfidence ||
-      ccNameDetail?.isOnlyVisibleFieldWithHighConfidence
-    ) {
-      return true;
     }
 
     return false;
@@ -616,7 +671,6 @@ export class FormAutofillCreditCardSection extends FormAutofillSection {
         result = decrypted ? "success" : "fail_user_canceled";
       } catch (ex) {
         result = "fail_error";
-        throw ex;
       } finally {
         Glean.formautofill.promptShownOsReauth.record({
           trigger: "autofill",
@@ -633,32 +687,10 @@ export class FormAutofillCreditCardSection extends FormAutofillSection {
   }
 
   async getDecryptedString(cipherText, reauth) {
-    if (
-      !lazy.FormAutofillUtils.getOSAuthEnabled(
-        lazy.FormAutofill.AUTOFILL_CREDITCARDS_REAUTH_PREF
-      )
-    ) {
+    if (!lazy.FormAutofillUtils.getOSAuthEnabled()) {
       this.log.debug("Reauth is disabled");
       reauth = false;
     }
-    let string;
-    let errorMessage;
-    try {
-      string = await lazy.OSKeyStore.decrypt(cipherText, reauth);
-      errorMessage = "NO_ERROR";
-    } catch (e) {
-      if (e.result != Cr.NS_ERROR_ABORT) {
-        throw e;
-      }
-      this.log.warn("User canceled encryption login");
-      errorMessage = e.result;
-    } finally {
-      Glean.creditcard.osKeystoreDecrypt.record({
-        isDecryptSuccess: errorMessage === "NO_ERROR",
-        errorMessage,
-        trigger: "autofill",
-      });
-    }
-    return string;
+    return await lazy.OSKeyStore.decrypt(cipherText, "formautofill_cc", reauth);
   }
 }

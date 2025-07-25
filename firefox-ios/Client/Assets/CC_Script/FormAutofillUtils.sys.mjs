@@ -27,19 +27,12 @@ ChromeUtils.defineLazyGetter(
     )
 );
 
-XPCOMUtils.defineLazyServiceGetter(
-  lazy,
-  "Crypto",
-  "@mozilla.org/login-manager/crypto/SDR;1",
-  "nsILoginManagerCrypto"
-);
-
 export let FormAutofillUtils;
 
 const ADDRESSES_COLLECTION_NAME = "addresses";
 const CREDITCARDS_COLLECTION_NAME = "creditCards";
-const AUTOFILL_CREDITCARDS_REAUTH_PREF =
-  FormAutofill.AUTOFILL_CREDITCARDS_REAUTH_PREF;
+const AUTOFILL_CREDITCARDS_OS_AUTH_LOCKED_PREF =
+  FormAutofill.AUTOFILL_CREDITCARDS_OS_AUTH_LOCKED_PREF;
 const MANAGE_ADDRESSES_L10N_IDS = [
   "autofill-add-address-title",
   "autofill-manage-addresses-title",
@@ -101,6 +94,7 @@ const FORM_SUBMISSION_REASON = {
   PAGE_NAVIGATION: "page-navigation",
 };
 
+const ELIGIBLE_ELEMENT_TYPES = ["input", "select", "textarea"];
 const ELIGIBLE_INPUT_TYPES = [
   "text",
   "email",
@@ -121,7 +115,7 @@ FormAutofillUtils = {
 
   ADDRESSES_COLLECTION_NAME,
   CREDITCARDS_COLLECTION_NAME,
-  AUTOFILL_CREDITCARDS_REAUTH_PREF,
+  AUTOFILL_CREDITCARDS_OS_AUTH_LOCKED_PREF,
   MANAGE_ADDRESSES_L10N_IDS,
   EDIT_ADDRESS_L10N_IDS,
   MANAGE_CREDITCARDS_L10N_IDS,
@@ -129,6 +123,8 @@ FormAutofillUtils = {
   MAX_FIELD_VALUE_LENGTH,
   FIELD_STATES,
   FORM_SUBMISSION_REASON,
+  ELIGIBLE_ELEMENT_TYPES,
+  ELIGIBLE_INPUT_TYPES,
 
   _fieldNameInfo: {
     name: "name",
@@ -142,6 +138,7 @@ FormAutofillUtils = {
     "address-line3": "address",
     "address-level1": "address",
     "address-level2": "address",
+    "address-level3": "address",
     // DE addresses are often split into street name and house number;
     // combined they form address-line1
     "address-streetname": "address",
@@ -187,66 +184,49 @@ FormAutofillUtils = {
     return ccNumber && lazy.CreditCard.isValidNumber(ccNumber);
   },
 
-  /**
-   * Get the decrypted value for a string pref.
-   *
-   * @param {string} prefName -> The pref whose value is needed.
-   * @param {string} safeDefaultValue -> Value to be returned incase the pref is not yet set.
-   * @returns {string}
-   */
-  getSecurePref(prefName, safeDefaultValue) {
-    if (Services.prefs.getBoolPref("security.nocertdb", false)) {
-      return false;
-    }
-    try {
-      const encryptedValue = Services.prefs.getStringPref(prefName, "");
-      return encryptedValue === ""
-        ? safeDefaultValue
-        : lazy.Crypto.decrypt(encryptedValue);
-    } catch {
-      return safeDefaultValue;
-    }
+  isTextControl(element) {
+    return (
+      HTMLInputElement.isInstance(element) ||
+      HTMLTextAreaElement.isInstance(element)
+    );
   },
 
-  /**
-   * Set the pref to the encrypted form of the value.
-   *
-   * @param {string} prefName -> The pref whose value is to be set.
-   * @param {string} value -> The value to be set in its encrypted form.
-   */
-  setSecurePref(prefName, value) {
-    if (Services.prefs.getBoolPref("security.nocertdb", false)) {
-      return;
-    }
-    if (value) {
-      const encryptedValue = lazy.Crypto.encrypt(value);
-      Services.prefs.setStringPref(prefName, encryptedValue);
-    } else {
-      Services.prefs.clearUserPref(prefName);
-    }
+  queryEligibleElements(element, includeIframe = false) {
+    const types = includeIframe
+      ? [...ELIGIBLE_ELEMENT_TYPES, "iframe"]
+      : ELIGIBLE_ELEMENT_TYPES;
+    return Array.from(element.querySelectorAll(types.join(",")));
   },
 
   /**
    * Get whether the OSAuth is enabled or not.
    *
-   * @param {string} prefName -> The name of the pref (creditcards or addresses)
-   * @returns {boolean}
+   * @returns {boolean} Whether or not OS Auth is enabled.
    */
-  getOSAuthEnabled(prefName) {
-    return (
-      lazy.OSKeyStore.canReauth() &&
-      this.getSecurePref(prefName, "") !== "opt out"
-    );
+  getOSAuthEnabled() {
+    if (!lazy.OSKeyStore.canReauth()) {
+      return false;
+    }
+
+    // We need to unlock the pref here to retrieve it's true value, otherwise
+    // the default (false) will be returned.
+    const prefName = AUTOFILL_CREDITCARDS_OS_AUTH_LOCKED_PREF;
+    Services.prefs.unlockPref(prefName);
+    const isEnabled = Services.prefs.getBoolPref(prefName, true);
+    Services.prefs.lockPref(prefName);
+
+    return isEnabled;
   },
 
   /**
    * Set whether the OSAuth is enabled or not.
    *
-   * @param {string} prefName -> The pref to encrypt.
    * @param {boolean} enable -> Whether the pref is to be enabled.
    */
-  setOSAuthEnabled(prefName, enable) {
-    this.setSecurePref(prefName, enable ? null : "opt out");
+  setOSAuthEnabled(enable) {
+    const prefName = AUTOFILL_CREDITCARDS_OS_AUTH_LOCKED_PREF;
+    Services.prefs.setBoolPref(prefName, enable);
+    Services.prefs.lockPref(prefName);
   },
 
   async verifyUserOSAuth(
@@ -438,7 +418,9 @@ FormAutofillUtils = {
    * @returns {boolean} true if the element can be autofilled
    */
   isFieldAutofillable(element) {
-    return element && !element.readOnly && !element.disabled;
+    return (
+      element && !element.readOnly && !element.disabled && element.isConnected
+    );
   },
 
   /**
@@ -485,6 +467,10 @@ FormAutofillUtils = {
     if (HTMLInputElement.isInstance(element)) {
       // `element.type` can be recognized as `text`, if it's missing or invalid.
       return ELIGIBLE_INPUT_TYPES.includes(element.type);
+    }
+
+    if (HTMLTextAreaElement.isInstance(element)) {
+      return true;
     }
 
     return HTMLSelectElement.isInstance(element);
@@ -662,14 +648,24 @@ FormAutofillUtils = {
    */
   buildRegionMapIfAvailable(subKeys, subIsoids, subNames, subLnames) {
     // Not all regions have sub_keys. e.g. DE
-    if (
-      !subKeys ||
-      !subKeys.length ||
-      (!subNames && !subLnames) ||
-      (subNames && subKeys.length != subNames.length) ||
-      (subLnames && subKeys.length != subLnames.length)
-    ) {
+    if (!subKeys?.length) {
       return null;
+    }
+
+    let names;
+    if (!subNames && !subLnames) {
+      // Use the keys if sub_names does not exist
+      names = [...subKeys];
+    } else {
+      if (
+        (subNames && subKeys.length != subNames.length) ||
+        (subLnames && subKeys.length != subLnames.length)
+      ) {
+        return null;
+      }
+
+      // Apply sub_lnames if sub_names does not exist
+      names = subNames || subLnames;
     }
 
     // Overwrite subKeys with subIsoids, when available
@@ -681,8 +677,6 @@ FormAutofillUtils = {
       }
     }
 
-    // Apply sub_lnames if sub_names does not exist
-    let names = subNames || subLnames;
     return new Map(subKeys.map((key, index) => [key, names[index]]));
   },
 
@@ -802,19 +796,21 @@ FormAutofillUtils = {
         sub_keys: subKeys,
         sub_names: subNames,
         sub_lnames: subLnames,
+        sub_isoids: subIsoids,
       } = metadata;
       if (!subKeys) {
         // Not all regions have sub_keys. e.g. DE
         continue;
       }
       // Apply sub_lnames if sub_names does not exist
-      subNames = subNames || subLnames;
+      subNames = subNames || subLnames || subKeys;
 
       let speculatedSubIndexes = [];
       for (const val of values) {
         let identifiedValue = this.identifyValue(
           subKeys,
           subNames,
+          subIsoids,
           val,
           collators
         );
@@ -895,7 +891,9 @@ FormAutofillUtils = {
             continue;
           }
           // Apply sub_lnames if sub_names does not exist
-          let names = dataset.sub_names || dataset.sub_lnames;
+          let names =
+            dataset.sub_names || dataset.sub_lnames || dataset.sub_keys;
+          let isoids = dataset.sub_isoids;
 
           // Go through options one by one to find a match.
           // Also check if any option contain the address-level1 key.
@@ -907,12 +905,14 @@ FormAutofillUtils = {
             let optionValue = this.identifyValue(
               keys,
               names,
+              isoids,
               option.value,
               collators
             );
             let optionText = this.identifyValue(
               keys,
               names,
+              isoids,
               option.text,
               collators,
               true
@@ -1071,12 +1071,17 @@ FormAutofillUtils = {
    *
    * @param   {Array<string>} keys
    * @param   {Array<string>} names
+   * @param   {Array<string>} isoids
    * @param   {string} value
    * @param   {Array} collators
    * @param   {bool} inexactMatch
    * @returns {string}
    */
-  identifyValue(keys, names, value, collators, inexactMatch = false) {
+  identifyValue(keys, names, isoids, value, collators, inexactMatch = false) {
+    if (!value) {
+      return null;
+    }
+
     let resultKey = keys.find(key => this.strCompare(value, key, collators));
     if (resultKey) {
       return resultKey;
@@ -1087,11 +1092,15 @@ FormAutofillUtils = {
         ? this.strInclude(value, name, collators)
         : this.strCompare(value, name, collators)
     );
-    if (index !== -1) {
-      return keys[index];
+    if (index === -1 && isoids) {
+      index = isoids.findIndex(isoid =>
+        inexactMatch
+          ? this.strInclude(value, isoid, collators)
+          : this.strCompare(value, isoid, collators)
+      );
     }
 
-    return null;
+    return index !== -1 ? keys[index] : null;
   },
 
   /**
@@ -1404,18 +1413,6 @@ FormAutofillUtils = {
   },
 };
 
-ChromeUtils.defineLazyGetter(FormAutofillUtils, "stringBundle", function () {
-  return Services.strings.createBundle(
-    "chrome://formautofill/locale/formautofill.properties"
-  );
-});
-
-ChromeUtils.defineLazyGetter(FormAutofillUtils, "brandBundle", function () {
-  return Services.strings.createBundle(
-    "chrome://branding/locale/brand.properties"
-  );
-});
-
 XPCOMUtils.defineLazyPreferenceGetter(
   FormAutofillUtils,
   "_reauthEnabledByUser",
@@ -1434,15 +1431,6 @@ XPCOMUtils.defineLazyPreferenceGetter(
   FormAutofillUtils,
   "ccFathomConfidenceThreshold",
   "extensions.formautofill.creditCards.heuristics.fathom.confidenceThreshold",
-  null,
-  null,
-  pref => parseFloat(pref)
-);
-
-XPCOMUtils.defineLazyPreferenceGetter(
-  FormAutofillUtils,
-  "ccFathomHighConfidenceThreshold",
-  "extensions.formautofill.creditCards.heuristics.fathom.highConfidenceThreshold",
   null,
   null,
   pref => parseFloat(pref)
