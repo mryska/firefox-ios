@@ -641,7 +641,7 @@
 "URL.paste" = "Incullà";
 
 /* Placeholder text shown in the URL bar before the user navigates to a page */
-"URL.placeholderText" = "Ricerca o indirizzu";
+"URL.placeholderText" = "Circà o stampittà un indirizzu";
 
 /* Label displayed for search button when typing in the URL bar */
 "URL.searchLabel" = "Circà %@";
