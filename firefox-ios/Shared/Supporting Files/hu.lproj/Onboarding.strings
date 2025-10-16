@@ -158,7 +158,7 @@
 "Onboarding.Modern.Welcome.Skip.v140" = "Most nem";
 
 /* String used to describes the title of what Firefox is on the welcome onboarding page for current version in our Onboarding screens. */
-"Onboarding.Modern.Welcome.Title.v140" = "Mondjon búcsút a hátborzongató reklámoknak";
+"Onboarding.Modern.Welcome.Title.v140" = "Intsen búcsút a hátborzongató reklámoknak";
 
 /* String used to describe the option to continue to ask for the notification permission in Firefox Onboarding screens. */
 "Onboarding.Notification.Continue.Action.v114" = "Folytatás";

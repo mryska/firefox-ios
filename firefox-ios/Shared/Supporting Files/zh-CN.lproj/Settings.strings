@@ -236,22 +236,22 @@
 "Settings.Studies.Title.v136" = "安装并运行研究";
 
 /* This is the footer text for the setting that toggles the Summarize feature under the Summarize settings section. */
-"Settings.Summarize.FooterTitle.v142" = "允许总结页面。";
+"Settings.Summarize.FooterTitle.v142" = "提供页面摘要功能。";
 
 /* This is the footer text for the gestures features under the Summarize settings section. */
-"Settings.Summarize.GesturesSection.FooterTitle.v142" = "左右摇动设备以总结页面。";
+"Settings.Summarize.GesturesSection.FooterTitle.v142" = "左右摇动设备以生成页面摘要。";
 
 /* This is the title for the setting that toggles the Shake Gesture feature under the Summarize settings section. */
-"Settings.Summarize.GesturesSection.ShakeGestureTitle.v142" = "摇动以总结";
+"Settings.Summarize.GesturesSection.ShakeGestureTitle.v142" = "摇动以生成摘要";
 
 /* This is the section title for the gestures features under the Summarize settings section. */
 "Settings.Summarize.GesturesSection.Title.v142" = "手势";
 
 /* This is the title for the setting that toggles the Summarize feature under the Summarize settings section. */
-"Settings.Summarize.SummarizePagesTitle.v142" = "总结页面";
+"Settings.Summarize.SummarizePagesTitle.v142" = "生成页面摘要";
 
 /* In the settings menu, in the General section, this is the title for the Summarize settings section. */
-"Settings.Summarize.Title.v142" = "总结页面";
+"Settings.Summarize.Title.v142" = "页面摘要";
 
 /* Title for a link that explains how Mozilla send technical and interaction data. */
 "Settings.TechnicalData.Link.v136" = "详细了解";

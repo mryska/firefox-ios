@@ -59,7 +59,7 @@
 "Onboarding.Customization.Toolbar.Continue.Action.v123" = "保存してブラウジングを開始";
 
 /* String used to describe the description label of the toolbar customization onboarding page in our Onboarding screens. */
-"Onboarding.Customization.Toolbar.Description.v123" = "手元で検索。";
+"Onboarding.Customization.Toolbar.Description.v123" = "手の届くところで検索しましょう。";
 
 /* String used to describe the option to skip the toolbar customization in Firefox Onboarding screens and start browisg in the app. */
 "Onboarding.Customization.Toolbar.Skip.Action.v123" = "スキップ";
@@ -272,7 +272,7 @@
 "Onboarding.Welcome.Skip.v114" = "スキップ";
 
 /* String used to describes the title of what Firefox is on the welcome onboarding page for current version in our Onboarding screens. */
-"Onboarding.Welcome.Title.TreatementA.v120" = "私たちはあなたの安全を守りたいと願っています";
+"Onboarding.Welcome.Title.TreatementA.v120" = "あなたの安全を守ります";
 
 /* String used to describes the title of what Firefox is on the welcome onboarding page for current version in our Onboarding screens. */
 "Onboarding.Welcome.Title.v114" = "誰のものでもない自由なインターネットへようこそ";

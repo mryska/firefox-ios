@@ -152,7 +152,7 @@
 "Onboarding.Modern.Welcome.ActionTreatementA.v140" = "Imposta come browser predefinito";
 
 /* String used to describe Firefox on the welcome onboarding page for the current version of our onboarding screens. */
-"Onboarding.Modern.Welcome.Description.v140" = "Con un’unica scelta sei protetto ovunque navighi sul Web. Puoi sempre cambiare idea in futuro.";
+"Onboarding.Modern.Welcome.Description.v140" = "Con un’unica scelta sei protetto ovunque navighi sul Web. Puoi cambiare idea in qualsiasi momento.";
 
 /* Describes the action on the first onboarding page in our Onboarding screen. This string will be on a button so user can skip this onboarding card. */
 "Onboarding.Modern.Welcome.Skip.v140" = "Non adesso";
