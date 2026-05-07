@@ -113,7 +113,7 @@
 "Settings.AIControls.HeaderCard.Title.v151" = "Du har alltid eit val i %@";
 
 /* In the settings menu, in the General section, this is the title for the AI Controls settings section */
-"Settings.AIControls.Title.v150" = "AI-kontrollar";
+"Settings.AIControls.Title.v150" = "KI-kontrollar";
 
 /* Section description in Appearance settings for middle button configuration of the bottom toolbar. */
 "Settings.Appearance.NavigationToolbar.Description.v145" = "Endrar knappen midt på verktøylinja.";
