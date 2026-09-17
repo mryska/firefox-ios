@@ -218,10 +218,10 @@
 "MainMenu.Submenus.Tools.AccessibilityLabels.Print.Title.v132" = "Skriv ut";
 
 /* On the main menu, the accessibility label for the action that will turn the reader view on for the current website. */
-"MainMenu.Submenus.Tools.AccessibilityLabels.ReaderView.Off.Title.v132" = "Slå av leservising";
+"MainMenu.Submenus.Tools.AccessibilityLabels.ReaderView.Off.Title.v132" = "Slå av lesevising";
 
 /* On the main menu, the accessibility label for the action that will turn the reader view on for the current website. */
-"MainMenu.Submenus.Tools.AccessibilityLabels.ReaderView.On.Title.v132" = "Slå på leservising";
+"MainMenu.Submenus.Tools.AccessibilityLabels.ReaderView.On.Title.v132" = "Slå på lesevising";
 
 /* On the main menu, a string below the Tool submenu accessibility label, indicating what kind of tools are available in that menu. This string is for the Reader View tool. */
 "MainMenu.Submenus.Tools.AccessibilityLabels.ReaderView.Subtitle.v132" = "Lesevising";
@@ -266,10 +266,10 @@
 "MainMenu.Submenus.Tools.Print.Title.v131" = "Skriv ut";
 
 /* On the main menu, the title for the action that will turn the reader view on for the current website. */
-"MainMenu.Submenus.Tools.ReaderView.Off.Title.v131" = "Slå av leservising";
+"MainMenu.Submenus.Tools.ReaderView.Off.Title.v131" = "Slå av lesevising";
 
 /* On the main menu, the title for the action that will turn the reader view on for the current website. */
-"MainMenu.Submenus.Tools.ReaderView.On.Title.v131" = "Slå på leservising";
+"MainMenu.Submenus.Tools.ReaderView.On.Title.v131" = "Slå på lesevising";
 
 /* On the main menu, a string below the Tool submenu tiitle, indicating what kind of tools are available in that menu. This string is for the Reader View tool. */
 "MainMenu.Submenus.Tools.ReaderView.Subtitle.v131" = "Lesevising";
@@ -288,12 +288,6 @@
 
 /* On the main menu, the title for the action that will take the user to the Share module in the application. */
 "MainMenu.Submenus.Tools.Share.Title.v144" = "Del";
-
-/* On the main menu, the title for the action that will turn Website's Dark Mode off in the application. */
-"MainMenu.Submenus.Tools.WebsiteDarkMode.Off.Title.v137" = "Slå av mørk modus for nettstaden";
-
-/* On the main menu, the title for the action that will turn Website's Dark Mode on in the application. */
-"MainMenu.Submenus.Tools.WebsiteDarkMode.On.Title.v137" = "Slå på mørk modus for nettstaden";
 
 /* On the main menu, the title for the action that indicate, website dark mode can be turned on or off. */
 "MainMenu.Submenus.Tools.WebsiteDarkMode.Title.v141" = "Mørk modus for nettstad";
@@ -427,8 +421,14 @@
 /* On the main menu, the title for the action that will translate the content of the webpage. */
 "MainMenu.ToolsSection.Translation.Title.v145" = "Omset sida";
 
+/* On the main menu, in the multi-language translation flow, the title for the action that will open a language picker to choose a language and translate the content of the webpage. The ellipsis indicates that a language picker will open. */
+"MainMenu.ToolsSection.Translation.Title.v151" = "Omset sida…";
+
 /* On the main menu, the title for the action that shows that the content of the webpage is already translated. */
 "MainMenu.ToolsSection.Translation.Translated.Title.v145" = "Omsett";
+
+/* On the main menu, in the multi-language translation flow, the title for the action that shows the content of the webpage has been translated. Tapping opens a language picker to change the language. The ellipsis indicates that a language picker will open. */
+"MainMenu.ToolsSection.Translation.Translated.Title.v151" = "Omsett…";
 
 /* On the main menu, a title for a label that indicate the Website Dark Mode option from menu, is OFF. */
 "MainMenu.WebsiteDarkModeOffV2.Title.v142" = "Av";
