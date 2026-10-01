@@ -65,7 +65,7 @@
 "MainMenu.HeaderBanner.Subtitle.v142" = "Quelques secondes suffisent. Vous pouvez changer d’avis à tout moment.";
 
 /* On the main menu, at the top, title for the banner which suggest user can set Firefox as default browser. %@ is the app name */
-"MainMenu.HeaderBanner.Title.v142" = "Définir %@ comme navigateur par défaut";
+"MainMenu.HeaderBanner.Title.v142" = "Définissez %@ comme navigateur par défaut";
 
 /* On the main menu, the accessibility label for the action that will take the user to the Bookmarks panel. */
 "MainMenu.PanelLinkSection.AccessibilityLabels.Bookmarks.v132" = "Marque-pages";
@@ -289,12 +289,6 @@
 /* On the main menu, the title for the action that will take the user to the Share module in the application. */
 "MainMenu.Submenus.Tools.Share.Title.v144" = "Partager";
 
-/* On the main menu, the title for the action that will turn Website's Dark Mode off in the application. */
-"MainMenu.Submenus.Tools.WebsiteDarkMode.Off.Title.v137" = "Désactiver le mode sombre des sites web";
-
-/* On the main menu, the title for the action that will turn Website's Dark Mode on in the application. */
-"MainMenu.Submenus.Tools.WebsiteDarkMode.On.Title.v137" = "Activer le mode sombre des sites web";
-
 /* On the main menu, the title for the action that indicate, website dark mode can be turned on or off. */
 "MainMenu.Submenus.Tools.WebsiteDarkMode.Title.v141" = "Mode sombre des sites web";
 
@@ -427,8 +421,14 @@
 /* On the main menu, the title for the action that will translate the content of the webpage. */
 "MainMenu.ToolsSection.Translation.Title.v145" = "Traduire la page";
 
+/* On the main menu, in the multi-language translation flow, the title for the action that will open a language picker to choose a language and translate the content of the webpage. The ellipsis indicates that a language picker will open. */
+"MainMenu.ToolsSection.Translation.Title.v151" = "Traduire la page…";
+
 /* On the main menu, the title for the action that shows that the content of the webpage is already translated. */
 "MainMenu.ToolsSection.Translation.Translated.Title.v145" = "Traduit";
+
+/* On the main menu, in the multi-language translation flow, the title for the action that shows the content of the webpage has been translated. Tapping opens a language picker to change the language. The ellipsis indicates that a language picker will open. */
+"MainMenu.ToolsSection.Translation.Translated.Title.v151" = "Page traduite…";
 
 /* On the main menu, a title for a label that indicate the Website Dark Mode option from menu, is OFF. */
 "MainMenu.WebsiteDarkModeOffV2.Title.v142" = "Désactivé";
